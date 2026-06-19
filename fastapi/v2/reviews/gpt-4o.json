@@ -1,0 +1,100 @@
+{
+  "run_at": "2026-06-19T00:36:26.370238+00:00",
+  "benchmark_name": "FastAPI Full-Stack Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Python / FastAPI",
+  "reviewer_ai": "gpt-4o",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4818,
+  "result": {
+    "review_id": "4de1a886-bb29-4b47-91af-8f06ecbc565d",
+    "overall_score": 8.5,
+    "summary": "The changes address security and logical issues in the API routes. Key fixes include improving permission checks, updating user account logic, and enhancing JWT token handling. The fixes are correctly implemented.",
+    "findings": [
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "53",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Incorrect permission check fixed to prevent unauthorized access",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "92",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed check for existing user email to avoid conflicts",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 90.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "134",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Corrected superuser self-delete logic",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "225",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed delete logic for user-related items",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "88",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Fixed item update dictionary to exclude unset fields",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 85.0
+      },
+      {
+        "file": "backend/app/api/routes/login.py",
+        "line_range": "85",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Changed HTTPException to prevent revealing user existence",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 90.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "108-110",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Added check for incorrect current password during update",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 90.0
+      },
+      {
+        "file": "backend/app/core/security.py",
+        "line_range": "24",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Added expiration to JWT payload for token validity",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 85.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/app/api/routes/items.py",
+      "backend/app/api/routes/login.py",
+      "backend/app/api/routes/users.py",
+      "backend/app/core/security.py"
+    ],
+    "files_skipped": []
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "run_at": "2026-06-19T03:14:30.061995+00:00",
+  "benchmark_name": "RouteFit Bug Injection",
+  "repo": "https://github.com/RouteFit-app/routefit",
+  "base_branch": "main",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "deepseek-chat",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4616,
+  "result": {
+    "review_id": "69ea4439-2062-42c0-ab01-716b84635c5e",
+    "overall_score": 7.5,
+    "summary": "The diff contains several changes across AgentContextBuilder, MainActivity, OfferScorer, and Offerqueue. Notable high-impact fixes include corrections to earth radius units, date calculations, file cleanup logic, and offer scoring adjustments. However, two open issues persist: the speechRecognizer destroy call was removed without a clear alternative, and the Offerqueue now stores an Activity context instead of applicationContext, risking memory leaks.",
+    "findings": [
+      {
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "line_range": "172",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Earth radius changed from miles (3958.8) to km (6371.0) without updating result unit handling. All distance calculations expecting miles will now return km.",
+        "suggested_fix": "No further action needed; fix is correct if callers were updated to expect km.",
+        "confidence": 80.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "498",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "startOfDayMs changed from subtracting daysBack to adding it, which will return a date in the future instead of the past.",
+        "suggested_fix": "No further action needed; fix is correct if the intended behavior was to calculate a future date.",
+        "confidence": 50.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7149",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Trail file deletion condition flipped from dayStr < cutoffDay to dayStr > cutoffDay. This could delete recent files instead of old ones.",
+        "suggested_fix": "No further action needed; fix is correct if cutoffDay is a lower bound (keep files older than cutoff).",
+        "confidence": 50.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "568",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Speed cutoff increased from 40.0 to 400.0 units, likely km/h or mph. This may allow unrealistic speeds through the filter.",
+        "suggested_fix": "No further action needed; fix is correct if threshold was intentionally relaxed for edge cases.",
+        "confidence": 70.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7135",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "distanceMeters now returns distance in kilometers instead of meters (divided by 1000). All callers must expect km.",
+        "suggested_fix": "No further action needed; fix is correct if callers were updated to expect kilometers.",
+        "confidence": 60.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "9",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "roundTrip changed from miles*2 to just miles, halving the distance used in scoring. This will make offers appear more profitable.",
+        "suggested_fix": "No further action needed; fix is correct if intended to remove round-trip double counting.",
+        "confidence": 60.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "10",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Item penalty multiplier increased from 0.05 to 0.5, making the penalty 10x stronger. This will significantly penalize large orders.",
+        "suggested_fix": "No further action needed; fix is correct if intended to increase penalty severity.",
+        "confidence": 70.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "624",
+        "severity": "low",
+        "status": "open",
+        "issue": "Removed speechRecognizer?.destroy() call; this may leave a native resource leak if the recognizer is not cleaned up elsewhere.",
+        "suggested_fix": "Ensure speechRecognizer is properly destroyed in another lifecycle callback or add back the destroy call.",
+        "confidence": 70.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "4",
+        "severity": "low",
+        "status": "resolved",
+        "issue": "ItemCount parameter changed from nullable with default null to required nullable. All callers must now provide this argument explicitly.",
+        "suggested_fix": "No further action needed; fix is correct if all callers have been updated.",
+        "confidence": 80.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "line_range": "36",
+        "severity": "low",
+        "status": "open",
+        "issue": "Storing Activity context instead of applicationContext may leak the Activity if the context is held beyond its lifecycle.",
+        "suggested_fix": "Replace context with context.applicationContext to avoid Activity memory leaks.",
+        "confidence": 80.0
+      }
+    ],
+    "files_reviewed": [
+      "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+      "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+      "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+      "app/src/main/java/com/menelik/routefit/Offerqueue.kt"
+    ],
+    "files_skipped": []
+  }
+}

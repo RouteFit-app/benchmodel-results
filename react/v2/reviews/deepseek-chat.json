@@ -1,0 +1,104 @@
+{
+  "run_at": "2026-06-19T13:30:29.594649+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react-v2",
+  "known_bug_count": 8,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "deepseek-chat",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4536,
+  "result": {
+    "review_id": "7bc98884-5442-4eb0-acca-7367a6e8db97",
+    "overall_score": 4.0,
+    "summary": "The diff contains multiple high-severity regressions: two logic flips (EditUser passwords and UserInformation full_name) break intended comparisons; the DataTable pagination display can show out-of-range entries; the EditItem query key change may cause stale list data. Several cleanup functions were removed, introducing memory leaks. One genuine bug (wrong toast function in AddItem) appears fixed. Overall, the changes introduce more defects than they resolve.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "47",
+        "severity": "high",
+        "status": "open",
+        "issue": "Changed logical operator from || to && breaks password match check: now requires both no password AND matching passwords, so any password fails.",
+        "suggested_fix": "Revert to original: (data) => !data.password || data.password === data.confirm_password",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "68",
+        "severity": "high",
+        "status": "open",
+        "issue": "Changed !== to === causes updateData.full_name to always be set to current full_name, even when unchanged, breaking the intent.",
+        "suggested_fix": "Revert to '!==' to only include when changed.",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "63",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Error handler was bound to showErrorToast but diff switches to showSuccessToast, which is a bug introduced and then fixed in this diff.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 80.0
+      },
+      {
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "line_range": "70",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Changed query key from ['items'] to ['items', item.id] may invalidate only a single item's cache instead of the entire list, causing stale data.",
+        "suggested_fix": "Keep both query keys: invalidateQueries({ queryKey: ['items'] }) to refresh full list.",
+        "confidence": 85.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "102-105",
+        "severity": "low",
+        "status": "open",
+        "issue": "Removed Math.min clipping causes pagination display to show entries beyond available data length.",
+        "suggested_fix": "Reinstate Math.min and data.length to cap the 'to' number correctly.",
+        "confidence": 90.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "86-88",
+        "severity": "low",
+        "status": "open",
+        "issue": "Removed cleanup function from useEffect causes memory leak by not removing media query listener.",
+        "suggested_fix": "Restore the return function with removeEventListener.",
+        "confidence": 90.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "15",
+        "severity": "low",
+        "status": "informational",
+        "issue": "Changed null check to undefined; both are falsy, so behavior is identical - no functional change.",
+        "suggested_fix": "Consider using strict equality or revert to null for clarity.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useMobile.ts",
+        "line_range": "15",
+        "severity": "low",
+        "status": "open",
+        "issue": "Removed cleanup function from useEffect causes memory leak by not removing media query listener.",
+        "suggested_fix": "Restore the return () => mql.removeEventListener('change', onChange).",
+        "confidence": 90.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/Items/EditItem.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/hooks/useMobile.ts"
+    ],
+    "files_skipped": []
+  }
+}

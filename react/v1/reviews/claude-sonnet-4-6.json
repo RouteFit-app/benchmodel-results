@@ -1,0 +1,123 @@
+{
+  "run_at": "2026-06-19T05:19:41.075544+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react",
+  "known_bug_count": 10,
+  "tech_stack": "React / Frontend",
+  "reviewer_ai": "claude-sonnet-4-6",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 5311,
+  "result": {
+    "review_id": "41d0684d-c790-4c65-9d6d-568006940364",
+    "overall_score": 1.2,
+    "summary": "This diff introduces at least eight clear regressions: inverted conditions for password deletion, query enable flag, and save-button disabled state; removal of await on an async login call; removal of password-match validation; wrong query key invalidated after item creation; and a broken pagination start offset. The only plausible intentional change is the items limit reduction. Nearly every file touched contains a critical or high-severity bug.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "93",
+        "severity": "high",
+        "status": "open",
+        "issue": "Condition inverted: was 'if (!submitData.password) delete' now 'if (submitData.password) delete'. A non-empty password is now stripped and an empty one is sent, breaking password updates.",
+        "suggested_fix": "Revert to 'if (!submitData.password)' so the password field is only omitted when left blank.",
+        "confidence": 97.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "64",
+        "severity": "high",
+        "status": "open",
+        "issue": "After adding an item, the code invalidates the 'users' query instead of 'items'. The items list will never refresh after creation.",
+        "suggested_fix": "Change queryKey back to ['items'] in the invalidateQueries call.",
+        "confidence": 98.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "line_range": "31-35",
+        "severity": "high",
+        "status": "open",
+        "issue": "Password match validation (.refine) removed. Users can now submit mismatched new_password and confirm_password with no client-side error.",
+        "suggested_fix": "Restore the .refine check that validates data.new_password === data.confirm_password.",
+        "confidence": 99.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "146",
+        "severity": "high",
+        "status": "open",
+        "issue": "Save button disabled logic inverted: 'disabled={form.formState.isDirty}' disables when dirty (changed) and enables when clean, preventing users from ever saving edits.",
+        "suggested_fix": "Revert to 'disabled={!form.formState.isDirty}' so the button is disabled only when no changes have been made.",
+        "confidence": 99.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "26",
+        "severity": "high",
+        "status": "open",
+        "issue": "'enabled: !isLoggedIn()' fetches current user only when NOT logged in. Logged-in users will never have their profile loaded, breaking the entire auth flow.",
+        "suggested_fix": "Revert to 'enabled: isLoggedIn()' so the query runs only for authenticated users.",
+        "confidence": 99.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "42-44",
+        "severity": "high",
+        "status": "open",
+        "issue": "'await' removed from LoginService.loginAccessToken call. 'response' is now a Promise; accessing response.access_token returns undefined, breaking login token storage.",
+        "suggested_fix": "Restore 'await': 'const response = await LoginService.loginAccessToken({ formData: data })'.",
+        "confidence": 99.0
+      },
+      {
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "line_range": "76-80",
+        "severity": "medium",
+        "status": "open",
+        "issue": "form.reset() removed on success. The form will retain stale values if the dialog is reopened, leading to confusing UX or accidental resubmission.",
+        "suggested_fix": "Restore form.reset() after setIsOpen(false), or at least call it inside onSuccess before closing.",
+        "confidence": 85.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "96-98",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Pagination 'Showing X to ...' start value lost +1. On page 0, offset 0*size=0 is shown instead of 1, and on later pages the start number is off by one.",
+        "suggested_fix": "Restore '+ 1' after the pageSize multiplication: pageIndex * pageSize + 1.",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "90",
+        "severity": "low",
+        "status": "open",
+        "issue": "'theme' removed from useEffect dependency array. If theme changes externally the effect may not re-run, causing stale media-query listener behaviour.",
+        "suggested_fix": "Add 'theme' back to the dependency array: [theme, updateTheme, getResolvedTheme].",
+        "confidence": 75.0
+      },
+      {
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "line_range": "14",
+        "severity": "low",
+        "status": "informational",
+        "issue": "Items fetch limit reduced from 100 to 10. This is a significant behaviour change; ensure pagination handles partial loads or this is intentional.",
+        "suggested_fix": "Verify pagination is in place to load remaining items, or restore limit: 100 if full list is required.",
+        "confidence": 70.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/AddUser.tsx",
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/UserSettings/ChangePassword.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/routes/_layout/items.tsx"
+    ],
+    "files_skipped": []
+  }
+}

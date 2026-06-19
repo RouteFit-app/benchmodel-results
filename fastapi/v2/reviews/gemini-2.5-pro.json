@@ -1,0 +1,118 @@
+{
+  "run_at": "2026-06-19T00:36:50.304627+00:00",
+  "benchmark_name": "FastAPI Full-Stack Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Python / FastAPI",
+  "reviewer_ai": "gemini-2.5-pro",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4818,
+  "result": {
+    "review_id": "5038cb83-e2d2-4a39-9460-a8ff2da9fdea",
+    "overall_score": 10.0,
+    "summary": "This diff contains a large number of critical security and logic fixes. It addresses data leakage, inverted authorization checks, a user enumeration vulnerability, missing password verification, and non-expiring JWTs. All changes are correct and significantly improve the application's security and correctness.",
+    "findings": [
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "37-38",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "The item listing endpoint did not filter by owner, leaking all items to any authenticated user.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "54",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "The authorization check for reading a single item was inverted, denying access to the owner and allowing access to others.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "111-112",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "The password update endpoint did not verify the user's current password, allowing a password change with just a valid session token.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "225",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "When deleting a user, the database query was inverted, causing it to delete all items *except* those belonging to the user being deleted.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/core/security.py",
+        "line_range": "25",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Access tokens were created without an expiration ('exp') claim, meaning they would never expire.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "89",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Using `exclude_unset=False` for updates would overwrite existing field values with `None` if they weren't provided in the PATCH request.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/login.py",
+        "line_range": "89",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "A user enumeration vulnerability existed in the password reset flow. The API returned a different error for non-existent users.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "89",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "The logic to check for an existing email during user update was inverted, preventing a user from keeping their own email.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "134",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "The logic to prevent superusers from deleting themselves was inverted, preventing non-superusers from doing so instead.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "83",
+        "severity": "low",
+        "status": "resolved",
+        "issue": "The user update endpoint used a less specific Pydantic model (`UserUpdate`) instead of the more appropriate `UserUpdateMe`.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/app/api/routes/items.py",
+      "backend/app/api/routes/login.py",
+      "backend/app/api/routes/users.py",
+      "backend/app/core/security.py"
+    ],
+    "files_skipped": []
+  }
+}

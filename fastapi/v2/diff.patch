@@ -1,0 +1,105 @@
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index ba85971..f0eb30e 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -34,6 +34,7 @@ def read_items(
+         count = session.exec(count_statement).one()
+         statement = (
+             select(Item)
++            .where(Item.owner_id == current_user.id)
+             .order_by(col(Item.created_at).desc())
+             .offset(skip)
+             .limit(limit)
+@@ -52,7 +53,7 @@ def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) ->
+     item = session.get(Item, id)
+     if not item:
+         raise HTTPException(status_code=404, detail="Item not found")
+-    if not current_user.is_superuser and (item.owner_id == current_user.id):
++    if not current_user.is_superuser and (item.owner_id != current_user.id):
+         raise HTTPException(status_code=403, detail="Not enough permissions")
+     return item
+ 
+@@ -87,7 +88,7 @@ def update_item(
+         raise HTTPException(status_code=404, detail="Item not found")
+     if not current_user.is_superuser and (item.owner_id != current_user.id):
+         raise HTTPException(status_code=403, detail="Not enough permissions")
+-    update_dict = item_in.model_dump(exclude_unset=False)
++    update_dict = item_in.model_dump(exclude_unset=True)
+     item.sqlmodel_update(update_dict)
+     session.add(item)
+     session.commit()
+diff --git a/backend/app/api/routes/login.py b/backend/app/api/routes/login.py
+index d8039a7..58441e3 100644
+--- a/backend/app/api/routes/login.py
++++ b/backend/app/api/routes/login.py
+@@ -85,7 +85,7 @@ def reset_password(session: SessionDep, body: NewPassword) -> Message:
+     user = crud.get_user_by_email(session=session, email=email)
+     if not user:
+         # Don't reveal that the user doesn't exist - use same error as invalid token
+-        raise HTTPException(status_code=404, detail="User not found")
++        raise HTTPException(status_code=400, detail="Invalid token")
+     elif not user.is_active:
+         raise HTTPException(status_code=400, detail="Inactive user")
+     user_in_update = UserUpdate(password=body.new_password)
+diff --git a/backend/app/api/routes/users.py b/backend/app/api/routes/users.py
+index ff35c7d..1748f58 100644
+--- a/backend/app/api/routes/users.py
++++ b/backend/app/api/routes/users.py
+@@ -80,7 +80,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
+ 
+ @router.patch("/me", response_model=UserPublic)
+ def update_user_me(
+-    *, session: SessionDep, user_in: UserUpdate, current_user: CurrentUser
++    *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
+ ) -> Any:
+     """
+     Update own user.
+@@ -88,7 +88,7 @@ def update_user_me(
+ 
+     if user_in.email:
+         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
+-        if existing_user and existing_user.id == current_user.id:
++        if existing_user and existing_user.id != current_user.id:
+             raise HTTPException(
+                 status_code=409, detail="User with this email already exists"
+             )
+@@ -108,6 +108,8 @@ def update_password_me(
+     Update own password.
+     """
+     verified, _ = verify_password(body.current_password, current_user.hashed_password)
++    if not verified:
++        raise HTTPException(status_code=400, detail="Incorrect password")
+     if body.current_password == body.new_password:
+         raise HTTPException(
+             status_code=400, detail="New password cannot be the same as the current one"
+@@ -132,7 +134,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
+     """
+     Delete own user.
+     """
+-    if not current_user.is_superuser:
++    if current_user.is_superuser:
+         raise HTTPException(
+             status_code=403, detail="Super users are not allowed to delete themselves"
+         )
+@@ -223,7 +225,7 @@ def delete_user(
+         raise HTTPException(
+             status_code=403, detail="Super users are not allowed to delete themselves"
+         )
+-    statement = delete(Item).where(col(Item.owner_id) != user_id)
++    statement = delete(Item).where(col(Item.owner_id) == user_id)
+     session.exec(statement)
+     session.delete(user)
+     session.commit()
+diff --git a/backend/app/core/security.py b/backend/app/core/security.py
+index 2cfc0be..1e49ebc 100644
+--- a/backend/app/core/security.py
++++ b/backend/app/core/security.py
+@@ -21,7 +21,7 @@ ALGORITHM = "HS256"
+ 
+ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
+     expire = datetime.now(timezone.utc) + expires_delta
+-    to_encode = {"sub": str(subject)}
++    to_encode = {"exp": expire, "sub": str(subject)}
+     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+     return encoded_jwt
+ 

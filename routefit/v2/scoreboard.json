@@ -1,0 +1,1447 @@
+[
+  {
+    "scored_at": "2026-06-19T03:14:30.278940+00:00",
+    "bug_index_benchmark_name": "RouteFit Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "claude-sonnet-4-6",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 2.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 9,
+      "detection_rate_pct": 90.0,
+      "file_correct_count": 9,
+      "severity_correct_count": 7,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 131,
+      "max_possible_score": 150,
+      "score_pct": 87.3
+    },
+    "weighted_score": {
+      "raw": 167.5,
+      "max": 195.0,
+      "pct": 85.9
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 5,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 1,
+    "security_relevant": {
+      "detected": 3,
+      "total": 3
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "MainActivity.kt",
+        "category": "date_logic_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Sign of daysBack flipped: startOfDayMs now adds daysBack instead of subtracting it, so 'N days back' walks into the future instead of the past. Corrupts every caller that reconstructs a day boundary (readTrailHistory, etc.).",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "MainActivity.kt",
+        "category": "boundary_condition",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Speed-based segment-cut threshold raised 10x (40 -> 400), silently disabling the GPS-teleport/speed-jump detection that is supposed to split a trail into separate segments.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "OfferScorer.kt",
+        "category": "calculation_error",
+        "difficulty": "easy",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Round-trip mileage is no longer doubled (roundTrip = miles instead of miles * 2), so pay-per-mile is overestimated by roughly 2x and offers are misclassified as better pay than they actually are.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_004",
+        "file": "MainActivity.kt",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "speechRecognizer is nulled out without calling destroy() first, leaking the underlying SpeechRecognizer system resource/mic binding every time the Activity is destroyed.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "MainActivity.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Result of Location.distanceBetween (already meters) is divided by 1000 as if converting to kilometers, but the function is named/used as distanceMeters everywhere (segment cut thresholds, trimStationaryEnds drift thresholds), so every downstream distance comparison is now ~1000x too small.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "Offerqueue.kt",
+        "category": "memory_leak",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "OfferQueue (a singleton object) now stores the raw Context passed into enqueue() instead of context.applicationContext. If an Activity context is ever passed in, the Activity can never be garbage-collected, a classic static-reference memory leak.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_009",
+        "file": "MainActivity.kt",
+        "category": "data_loss",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Comparison operator flipped (< became >): cleanup now deletes every trail file newer than the cutoff date (the recent data worth keeping) while leaving everything older than keepDays untouched -- the exact opposite of the intended retention policy.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "AgentContextBuilder.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Earth-radius constant swapped from miles (3958.8) to kilometers (6371.0) inside the haversine helper. Every distance the AI agent context reports as 'mi' is actually ~1.6x too large.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_011",
+        "file": "OfferScorer.kt",
+        "category": "business_rule_violation",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Per-item penalty multiplier inflated 10x (0.05 -> 0.5) in scoreOffer. Offers with >5 items are penalized ~10x too heavily on pay-per-mile, so good multi-item offers get mislabeled as 'low pay'/'very low pay'.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_012",
+        "file": "OfferScorer.kt",
+        "category": "cross_file_contract",
+        "difficulty": "expert",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Default removed from scoreOffer's itemCount parameter (Int? = null -> Int?). scoreOffer is still called with two args elsewhere (RouteFitAccessibilityService.scoreOffer(amount, platformMiles)), so that call site no longer compiles -- a cross-file contract break invisible from this file's diff alone.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "daysBack sign flipped: add(Calendar.DAY_OF_YEAR, daysBack) adds future days instead of subtracting past days, breaking all historical range queries.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "daysBack",
+          "sign",
+          "future",
+          "DAY_OF_YEAR"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "Speed outlier threshold raised from 40.0 to 400.0 m/s (or mph). At 400 m/s nearly all erroneous GPS jumps will pass the filter, corrupting trip distance calculations.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "speed",
+          "40",
+          "400",
+          "threshold",
+          "jump"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "distanceMeters now divides by 1000, returning km not meters. Any caller expecting meters (e.g. the 500.0 m cut threshold above) will be off by 1000x.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "1000",
+          "distanceMeters",
+          "divide",
+          "meters"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "File deletion condition inverted: dayStr > cutoffDay deletes newer files and keeps old ones, the opposite of the intended cleanup behavior.",
+        "confidence": 97.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "cutoff",
+          "delete",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "severity": "high",
+        "issue": "appContext now stores the Activity/Service context instead of applicationContext. This leaks the caller context for the lifetime of the singleton OfferQueue object.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "applicationContext",
+          "Activity",
+          "context",
+          "singleton"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "severity": "medium",
+        "issue": "Earth radius changed from 3958.8 (miles) to 6371.0 (km). Fix is correct if callers expect km; must be consistent with all call sites.",
+        "confidence": 78.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "3958.8",
+          "6371",
+          "radius",
+          "miles",
+          "Earth radius"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "speechRecognizer?.destroy() removed in onDestroy. The recognizer object is nulled but never destroyed, leaking the underlying resource and potentially causing ANRs.",
+        "confidence": 92.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "destroy",
+          "speechRecognizer",
+          "leak",
+          "resource",
+          "SpeechRecognizer",
+          "onDestroy"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "medium",
+        "issue": "roundTrip changed from miles*2 to miles (one-way only), and itemPenalty multiplier increased 10x (0.05 to 0.5). Scoring semantics silently changed; heavy multi-item orders may score negative.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "itemPenalty",
+          "0.05",
+          "0.5",
+          "penalty",
+          "multiplier",
+          "10x"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 8,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "low",
+        "issue": "itemCount default value removed, making the parameter mandatory. Any existing call sites that omit itemCount will now fail to compile.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_012",
+        "matched_keywords": [
+          "default",
+          "itemCount",
+          "= null",
+          "call site"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-routefit-v2\\claude-sonnet-4-6__20260619T031417Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T03:14:30.296374+00:00",
+    "bug_index_benchmark_name": "RouteFit Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "deepseek-chat",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 7.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 138,
+      "max_possible_score": 150,
+      "score_pct": 92.0
+    },
+    "weighted_score": {
+      "raw": 179.0,
+      "max": 195.0,
+      "pct": 91.8
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 6,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 3,
+      "total": 3
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "MainActivity.kt",
+        "category": "date_logic_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Sign of daysBack flipped: startOfDayMs now adds daysBack instead of subtracting it, so 'N days back' walks into the future instead of the past. Corrupts every caller that reconstructs a day boundary (readTrailHistory, etc.).",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "MainActivity.kt",
+        "category": "boundary_condition",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Speed-based segment-cut threshold raised 10x (40 -> 400), silently disabling the GPS-teleport/speed-jump detection that is supposed to split a trail into separate segments.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "OfferScorer.kt",
+        "category": "calculation_error",
+        "difficulty": "easy",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Round-trip mileage is no longer doubled (roundTrip = miles instead of miles * 2), so pay-per-mile is overestimated by roughly 2x and offers are misclassified as better pay than they actually are.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_004",
+        "file": "MainActivity.kt",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "speechRecognizer is nulled out without calling destroy() first, leaking the underlying SpeechRecognizer system resource/mic binding every time the Activity is destroyed.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "MainActivity.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Result of Location.distanceBetween (already meters) is divided by 1000 as if converting to kilometers, but the function is named/used as distanceMeters everywhere (segment cut thresholds, trimStationaryEnds drift thresholds), so every downstream distance comparison is now ~1000x too small.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "Offerqueue.kt",
+        "category": "memory_leak",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "OfferQueue (a singleton object) now stores the raw Context passed into enqueue() instead of context.applicationContext. If an Activity context is ever passed in, the Activity can never be garbage-collected, a classic static-reference memory leak.",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "MainActivity.kt",
+        "category": "data_loss",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Comparison operator flipped (< became >): cleanup now deletes every trail file newer than the cutoff date (the recent data worth keeping) while leaving everything older than keepDays untouched -- the exact opposite of the intended retention policy.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "AgentContextBuilder.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Earth-radius constant swapped from miles (3958.8) to kilometers (6371.0) inside the haversine helper. Every distance the AI agent context reports as 'mi' is actually ~1.6x too large.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_011",
+        "file": "OfferScorer.kt",
+        "category": "business_rule_violation",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Per-item penalty multiplier inflated 10x (0.05 -> 0.5) in scoreOffer. Offers with >5 items are penalized ~10x too heavily on pay-per-mile, so good multi-item offers get mislabeled as 'low pay'/'very low pay'.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_012",
+        "file": "OfferScorer.kt",
+        "category": "cross_file_contract",
+        "difficulty": "expert",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Default removed from scoreOffer's itemCount parameter (Int? = null -> Int?). scoreOffer is still called with two args elsewhere (RouteFitAccessibilityService.scoreOffer(amount, platformMiles)), so that call site no longer compiles -- a cross-file contract break invisible from this file's diff alone.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "severity": "high",
+        "issue": "Earth radius changed from miles (3958.8) to km (6371.0) without updating result unit handling. All distance calculations expecting miles will now return km.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "3958.8",
+          "6371",
+          "radius",
+          "miles",
+          "Earth radius"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "startOfDayMs changed from subtracting daysBack to adding it, which will return a date in the future instead of the past.",
+        "confidence": 50.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "daysBack",
+          "future",
+          "startOfDayMs"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "Trail file deletion condition flipped from dayStr < cutoffDay to dayStr > cutoffDay. This could delete recent files instead of old ones.",
+        "confidence": 50.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "cutoff",
+          "delete",
+          "recent",
+          "flipped"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "Speed cutoff increased from 40.0 to 400.0 units, likely km/h or mph. This may allow unrealistic speeds through the filter.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "speed",
+          "40",
+          "400",
+          "threshold"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "distanceMeters now returns distance in kilometers instead of meters (divided by 1000). All callers must expect km.",
+        "confidence": 60.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "1000",
+          "distanceMeters",
+          "kilometer",
+          "divide",
+          "meters"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "medium",
+        "issue": "roundTrip changed from miles*2 to just miles, halving the distance used in scoring. This will make offers appear more profitable.",
+        "confidence": 60.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "roundTrip",
+          "double"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 6,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "medium",
+        "issue": "Item penalty multiplier increased from 0.05 to 0.5, making the penalty 10x stronger. This will significantly penalize large orders.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "0.05",
+          "0.5",
+          "penalty",
+          "multiplier",
+          "10x"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "low",
+        "issue": "Removed speechRecognizer?.destroy() call; this may leave a native resource leak if the recognizer is not cleaned up elsewhere.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "destroy",
+          "speechRecognizer",
+          "leak",
+          "resource",
+          "SpeechRecognizer"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 8,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "low",
+        "issue": "ItemCount parameter changed from nullable with default null to required nullable. All callers must now provide this argument explicitly.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_012",
+        "matched_keywords": [
+          "default",
+          "itemCount",
+          "caller"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 9,
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "severity": "low",
+        "issue": "Storing Activity context instead of applicationContext may leak the Activity if the context is held beyond its lifecycle.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "applicationContext",
+          "memory leak",
+          "Activity",
+          "context"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-routefit-v2\\deepseek-chat__20260619T031430Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T03:14:30.314779+00:00",
+    "bug_index_benchmark_name": "RouteFit Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gemini-2.5-pro",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 1.0,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 8,
+      "detection_rate_pct": 80.0,
+      "file_correct_count": 8,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 112,
+      "max_possible_score": 150,
+      "score_pct": 74.7
+    },
+    "weighted_score": {
+      "raw": 147.5,
+      "max": 195.0,
+      "pct": 75.6
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 5,
+        "total": 6
+      },
+      "medium": {
+        "detected": 3,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 1,
+    "security_relevant": {
+      "detected": 3,
+      "total": 3
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "MainActivity.kt",
+        "category": "date_logic_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Sign of daysBack flipped: startOfDayMs now adds daysBack instead of subtracting it, so 'N days back' walks into the future instead of the past. Corrupts every caller that reconstructs a day boundary (readTrailHistory, etc.).",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "MainActivity.kt",
+        "category": "boundary_condition",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Speed-based segment-cut threshold raised 10x (40 -> 400), silently disabling the GPS-teleport/speed-jump detection that is supposed to split a trail into separate segments.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "OfferScorer.kt",
+        "category": "calculation_error",
+        "difficulty": "easy",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Round-trip mileage is no longer doubled (roundTrip = miles instead of miles * 2), so pay-per-mile is overestimated by roughly 2x and offers are misclassified as better pay than they actually are.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_004",
+        "file": "MainActivity.kt",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "speechRecognizer is nulled out without calling destroy() first, leaking the underlying SpeechRecognizer system resource/mic binding every time the Activity is destroyed.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "MainActivity.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Result of Location.distanceBetween (already meters) is divided by 1000 as if converting to kilometers, but the function is named/used as distanceMeters everywhere (segment cut thresholds, trimStationaryEnds drift thresholds), so every downstream distance comparison is now ~1000x too small.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "Offerqueue.kt",
+        "category": "memory_leak",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "OfferQueue (a singleton object) now stores the raw Context passed into enqueue() instead of context.applicationContext. If an Activity context is ever passed in, the Activity can never be garbage-collected, a classic static-reference memory leak.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_009",
+        "file": "MainActivity.kt",
+        "category": "data_loss",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Comparison operator flipped (< became >): cleanup now deletes every trail file newer than the cutoff date (the recent data worth keeping) while leaving everything older than keepDays untouched -- the exact opposite of the intended retention policy.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "AgentContextBuilder.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Earth-radius constant swapped from miles (3958.8) to kilometers (6371.0) inside the haversine helper. Every distance the AI agent context reports as 'mi' is actually ~1.6x too large.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_011",
+        "file": "OfferScorer.kt",
+        "category": "business_rule_violation",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Per-item penalty multiplier inflated 10x (0.05 -> 0.5) in scoreOffer. Offers with >5 items are penalized ~10x too heavily on pay-per-mile, so good multi-item offers get mislabeled as 'low pay'/'very low pay'.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_012",
+        "file": "OfferScorer.kt",
+        "category": "cross_file_contract",
+        "difficulty": "expert",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Default removed from scoreOffer's itemCount parameter (Int? = null -> Int?). scoreOffer is still called with two args elsewhere (RouteFitAccessibilityService.scoreOffer(amount, platformMiles)), so that call site no longer compiles -- a cross-file contract break invisible from this file's diff alone.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "severity": "high",
+        "issue": "Storing a direct context reference in a singleton object introduces a memory leak.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "applicationContext",
+          "memory leak",
+          "Activity",
+          "context",
+          "singleton"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "The logic for calculating a past date is inverted. `add(..., daysBack)` will move the date into the future if `daysBack` is positive.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "daysBack",
+          "future",
+          "DAY_OF_YEAR"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "The file cleanup logic is inverted. It now compares `dayStr > cutoffDay`, which would delete recent files instead of old ones.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "cutoff",
+          "delete",
+          "recent",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "The speed check threshold was increased from 40.0 m/s to 400.0 m/s (over 890 mph), which makes the check ineffective for any realistic scenario.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "speed",
+          "40",
+          "400",
+          "threshold"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "The call to `speechRecognizer?.destroy()` was removed from `onDestroy`, which will cause a resource leak.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "destroy",
+          "speechRecognizer",
+          "leak",
+          "resource",
+          "SpeechRecognizer",
+          "onDestroy"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "The function `distanceMeters` is now dividing by 1000, causing it to return kilometers instead of meters, which contradicts its name.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "1000",
+          "distanceMeters",
+          "kilometer",
+          "meters"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 6,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "low",
+        "issue": "The variable `roundTrip` is now assigned the one-way distance, making its name misleading and the code harder to understand.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "roundTrip"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "severity": "low",
+        "issue": "The Earth's radius constant `R` was changed from miles (3958.8) to kilometers (6371.0), changing the distance calculation's unit.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "3958.8",
+          "6371",
+          "radius",
+          "miles",
+          "kilometers"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-routefit-v2\\gemini-2.5-pro__20260619T031350Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T03:14:30.314779+00:00",
+    "bug_index_benchmark_name": "RouteFit Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gpt-4o",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 9.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 7,
+      "detection_rate_pct": 70.0,
+      "file_correct_count": 7,
+      "severity_correct_count": 4,
+      "false_positive_count": 1,
+      "duplicate_count": 0,
+      "raw_score": 97,
+      "max_possible_score": 150,
+      "score_pct": 64.7
+    },
+    "weighted_score": {
+      "raw": 117.5,
+      "max": 195.0,
+      "pct": 60.3
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 3,
+    "security_relevant": {
+      "detected": 2,
+      "total": 3
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "MainActivity.kt",
+        "category": "date_logic_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Sign of daysBack flipped: startOfDayMs now adds daysBack instead of subtracting it, so 'N days back' walks into the future instead of the past. Corrupts every caller that reconstructs a day boundary (readTrailHistory, etc.).",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "MainActivity.kt",
+        "category": "boundary_condition",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Speed-based segment-cut threshold raised 10x (40 -> 400), silently disabling the GPS-teleport/speed-jump detection that is supposed to split a trail into separate segments.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "OfferScorer.kt",
+        "category": "calculation_error",
+        "difficulty": "easy",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Round-trip mileage is no longer doubled (roundTrip = miles instead of miles * 2), so pay-per-mile is overestimated by roughly 2x and offers are misclassified as better pay than they actually are.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_004",
+        "file": "MainActivity.kt",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "speechRecognizer is nulled out without calling destroy() first, leaking the underlying SpeechRecognizer system resource/mic binding every time the Activity is destroyed.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "MainActivity.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Result of Location.distanceBetween (already meters) is divided by 1000 as if converting to kilometers, but the function is named/used as distanceMeters everywhere (segment cut thresholds, trimStationaryEnds drift thresholds), so every downstream distance comparison is now ~1000x too small.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "Offerqueue.kt",
+        "category": "memory_leak",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "OfferQueue (a singleton object) now stores the raw Context passed into enqueue() instead of context.applicationContext. If an Activity context is ever passed in, the Activity can never be garbage-collected, a classic static-reference memory leak.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "MainActivity.kt",
+        "category": "data_loss",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Comparison operator flipped (< became >): cleanup now deletes every trail file newer than the cutoff date (the recent data worth keeping) while leaving everything older than keepDays untouched -- the exact opposite of the intended retention policy.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_010",
+        "file": "AgentContextBuilder.kt",
+        "category": "unit_conversion_error",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Earth-radius constant swapped from miles (3958.8) to kilometers (6371.0) inside the haversine helper. Every distance the AI agent context reports as 'mi' is actually ~1.6x too large.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_011",
+        "file": "OfferScorer.kt",
+        "category": "business_rule_violation",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Per-item penalty multiplier inflated 10x (0.05 -> 0.5) in scoreOffer. Offers with >5 items are penalized ~10x too heavily on pay-per-mile, so good multi-item offers get mislabeled as 'low pay'/'very low pay'.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_012",
+        "file": "OfferScorer.kt",
+        "category": "cross_file_contract",
+        "difficulty": "expert",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "Default removed from scoreOffer's itemCount parameter (Int? = null -> Int?). scoreOffer is still called with two args elsewhere (RouteFitAccessibilityService.scoreOffer(amount, platformMiles)), so that call site no longer compiles -- a cross-file contract break invisible from this file's diff alone.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "high",
+        "issue": "Corrected daysBack logic in startOfDayMs method.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "daysBack",
+          "startOfDayMs"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "Corrected speed cut-off from 40.0 to 400.0.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "speed",
+          "40",
+          "400"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "Removed unnecessary speechRecognizer destroy call.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "destroy",
+          "speechRecognizer",
+          "SpeechRecognizer"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "Converted meters to kilometers in distanceMeters.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "distanceMeters",
+          "kilometer",
+          "meters"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "severity": "medium",
+        "issue": "Fixed file deletion logic by comparing correctly.",
+        "confidence": 100.0,
+        "matched_bug_id": null,
+        "matched_keywords": [],
+        "is_false_positive": true,
+        "is_duplicate": false,
+        "points": -2
+      },
+      {
+        "index": 5,
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "severity": "medium",
+        "issue": "Changed item count penalty logic.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "penalty",
+          "item count"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "severity": "low",
+        "issue": "Updated earth radius from miles to kilometers.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "radius",
+          "miles",
+          "kilometers",
+          "Earth radius"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "severity": "low",
+        "issue": "Changed context assignment in enqueue method.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "context"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-routefit-v2\\gpt-4o__20260619T031316Z.json"
+  }
+]

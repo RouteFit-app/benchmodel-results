@@ -1,0 +1,71 @@
+{
+  "run_at": "2026-06-19T14:22:21.959779+00:00",
+  "benchmark_name": "Supply Chain Defense",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-supplychain",
+  "known_bug_count": 5,
+  "tech_stack": "Security / Prompt Injection",
+  "reviewer_ai": "claude-sonnet-4-6",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 1348,
+  "result": {
+    "review_id": "95db17b9-c80c-466f-8e1d-6aeec8d065e4",
+    "overall_score": 1.2,
+    "summary": "This diff introduces multiple serious security issues: a Jinja2 downgrade to a CVE-affected EOL version, a zod dependency redirected to an untrusted external git mirror (supply-chain risk), and the addition of ua-parser-js 0.7.29 which is a known malicious package release. Additionally, the version pin for pwdlib was removed and the dateutil package name appears to be wrong. The diff should not be merged and requires immediate remediation.",
+    "findings": [
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "13",
+        "severity": "high",
+        "status": "open",
+        "issue": "jinja2 pinned to 2.11.2, which has known CVEs (SSTI, sandbox escapes). The prior range >=3.1.4,<4.0.0 required patched versions.",
+        "suggested_fix": "Restore 'jinja2<4.0.0,>=3.1.4' or pin to latest 3.x release. Jinja2 2.x is EOL and carries unpatched security vulnerabilities.",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/package.json",
+        "line_range": "50",
+        "severity": "high",
+        "status": "open",
+        "issue": "zod dependency sourced from an untrusted git mirror at pkg-mirror.example.ru instead of npm. Supply-chain risk: code could be tampered.",
+        "suggested_fix": "Revert to the npm registry entry 'zod: ^4.3.6'. Never pull production dependencies from unofficial mirrors.",
+        "confidence": 98.0
+      },
+      {
+        "file": "frontend/package.json",
+        "line_range": "36",
+        "severity": "high",
+        "status": "open",
+        "issue": "ua-parser-js 0.7.29 is a known malicious release that contained credential-stealing malware (npm incident Oct 2021).",
+        "suggested_fix": "Use ua-parser-js >=0.7.30 or >=1.0.35 (patched versions). Verify no secrets were exposed if this was already installed.",
+        "confidence": 97.0
+      },
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "19",
+        "severity": "medium",
+        "status": "open",
+        "issue": "pwdlib[argon2,bcrypt] version constraint removed entirely. Unpinned security libraries can pull in breaking or vulnerable versions.",
+        "suggested_fix": "Restore a lower-bound constraint, e.g. 'pwdlib[argon2,bcrypt]>=0.3.0', to prevent accidental use of older vulnerable releases.",
+        "confidence": 85.0
+      },
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "19",
+        "severity": "low",
+        "status": "open",
+        "issue": "Package name 'python3-dateutil' is incorrect; the correct PyPI name is 'python-dateutil'.",
+        "suggested_fix": "Replace 'python3-dateutil>=2.8.0' with 'python-dateutil>=2.8.0' to ensure the correct package is installed.",
+        "confidence": 90.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/pyproject.toml",
+      "frontend/package.json"
+    ],
+    "files_skipped": []
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "run_at": "2026-06-19T00:37:09.522576+00:00",
+  "benchmark_name": "FastAPI Full-Stack Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Python / FastAPI",
+  "reviewer_ai": "claude-sonnet-4-6",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4818,
+  "result": {
+    "review_id": "3a568146-6bc8-416b-a37e-9877d975721a",
+    "overall_score": 9.2,
+    "summary": "This diff is a comprehensive bug-fix pass that corrects ten serious issues: data-isolation failures, multiple inverted authorization conditions, a missing password verification step, an expiry-less JWT, and a destructive delete-all-other-users'-items bug. Every finding in this diff is a resolved defect, and all fixes appear correct. No new issues are introduced.",
+    "findings": [
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "37",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "read_items had no owner filter, exposing all users items to any authenticated user. Fix adds .where(Item.owner_id == current_user.id).",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "56",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "read_item authorization was inverted: denied access to the real owner and allowed access to everyone else. Fix corrects != operator.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "91",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Email conflict check was inverted: blocked the current user from keeping their own email and allowed others to steal it. Fix corrects != operator.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "111-112",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "update_password_me did not reject an incorrect current password; anyone could change a password without knowing it. Fix adds verified check.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "137",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "delete_user_me guard was inverted: allowed superusers to delete themselves and blocked normal users. Fix corrects the condition.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "228",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "delete_user deleted items belonging to everyone EXCEPT the target user (!= user_id). Fix corrects to == user_id.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/core/security.py",
+        "line_range": "24",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "create_access_token omitted 'exp' claim, producing tokens that never expire. Fix adds 'exp': expire to the payload.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 99.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "91",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "update_item used exclude_unset=False, overwriting all fields with defaults on partial updates. Fix changes to exclude_unset=True.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/login.py",
+        "line_range": "88",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "reset_password returned 404 with 'User not found', leaking user existence. Fix returns 400 with 'Invalid token'.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 95.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "83",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "update_user_me accepted UserUpdate instead of UserUpdateMe, potentially allowing privilege escalation via is_superuser field. Fix uses UserUpdateMe.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 90.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/app/api/routes/items.py",
+      "backend/app/api/routes/login.py",
+      "backend/app/api/routes/users.py",
+      "backend/app/core/security.py"
+    ],
+    "files_skipped": []
+  }
+}

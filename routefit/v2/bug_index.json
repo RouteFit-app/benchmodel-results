@@ -1,0 +1,276 @@
+{
+  "benchmark_name": "RouteFit Bug Injection",
+  "version": 2,
+  "repo": "https://github.com/RouteFit-app/routefit",
+  "base_branch": "main",
+  "buggy_branch": "benchmark/buggy-v2",
+  "created_at": "2026-06-16",
+  "scoring": {
+    "detect_points": 10,
+    "correct_file_bonus": 3,
+    "correct_severity_bonus": 2,
+    "false_positive_penalty": -2,
+    "severity_weight": {
+      "high": 1.5,
+      "medium": 1.0,
+      "low": 0.5
+    }
+  },
+  "bugs": [
+    {
+      "id": "BUG_001",
+      "file": "MainActivity.kt",
+      "function": "startOfDayMs",
+      "category": "date_logic_error",
+      "severity": "high",
+      "security_relevant": false,
+      "description": "Sign of daysBack flipped: startOfDayMs now adds daysBack instead of subtracting it, so 'N days back' walks into the future instead of the past. Corrupts every caller that reconstructs a day boundary (readTrailHistory, etc.).",
+      "injection": {
+        "find": "            add(Calendar.DAY_OF_YEAR, -daysBack)\n",
+        "replace_with": "            add(Calendar.DAY_OF_YEAR, daysBack)\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "daysBack",
+          "sign",
+          "future",
+          "negative",
+          "startOfDayMs",
+          "DAY_OF_YEAR"
+        ]
+      },
+      "difficulty": "medium"
+    },
+    {
+      "id": "BUG_002",
+      "file": "MainActivity.kt",
+      "function": "segment",
+      "category": "boundary_condition",
+      "severity": "medium",
+      "security_relevant": false,
+      "description": "Speed-based segment-cut threshold raised 10x (40 -> 400), silently disabling the GPS-teleport/speed-jump detection that is supposed to split a trail into separate segments.",
+      "injection": {
+        "find": "                        speed > 40.0 ||\n",
+        "replace_with": "                        speed > 400.0 ||\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "speed",
+          "40",
+          "400",
+          "threshold",
+          "segment",
+          "teleport",
+          "jump"
+        ]
+      },
+      "difficulty": "medium"
+    },
+    {
+      "id": "BUG_003",
+      "file": "OfferScorer.kt",
+      "function": "scoreOffer",
+      "category": "calculation_error",
+      "severity": "high",
+      "security_relevant": false,
+      "description": "Round-trip mileage is no longer doubled (roundTrip = miles instead of miles * 2), so pay-per-mile is overestimated by roughly 2x and offers are misclassified as better pay than they actually are.",
+      "injection": {
+        "find": "        val roundTrip = miles * 2\n",
+        "replace_with": "        val roundTrip = miles\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "round trip",
+          "roundTrip",
+          "miles * 2",
+          "double",
+          "doubling",
+          "pay-per-mile",
+          "PPM",
+          "2x"
+        ]
+      },
+      "difficulty": "easy"
+    },
+    {
+      "id": "BUG_004",
+      "file": "MainActivity.kt",
+      "function": "onDestroy",
+      "category": "resource_leak",
+      "severity": "medium",
+      "security_relevant": true,
+      "description": "speechRecognizer is nulled out without calling destroy() first, leaking the underlying SpeechRecognizer system resource/mic binding every time the Activity is destroyed.",
+      "injection": {
+        "find": "        super.onDestroy()\n        speechRecognizer?.destroy()\n        speechRecognizer = null\n",
+        "replace_with": "        super.onDestroy()\n        speechRecognizer = null\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "destroy",
+          "speechRecognizer",
+          "leak",
+          "resource",
+          "SpeechRecognizer",
+          "onDestroy"
+        ]
+      },
+      "difficulty": "hard"
+    },
+    {
+      "id": "BUG_005",
+      "file": "MainActivity.kt",
+      "function": "distanceMeters",
+      "category": "unit_conversion_error",
+      "severity": "high",
+      "security_relevant": false,
+      "description": "Result of Location.distanceBetween (already meters) is divided by 1000 as if converting to kilometers, but the function is named/used as distanceMeters everywhere (segment cut thresholds, trimStationaryEnds drift thresholds), so every downstream distance comparison is now ~1000x too small.",
+      "injection": {
+        "find": "        Location.distanceBetween(a.lat, a.lng, b.lat, b.lng, r)\n        return r[0].toDouble()\n",
+        "replace_with": "        Location.distanceBetween(a.lat, a.lng, b.lat, b.lng, r)\n        return r[0].toDouble() / 1000\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "1000",
+          "distanceMeters",
+          "unit",
+          "kilometer",
+          "divide",
+          "meters",
+          "conversion"
+        ]
+      },
+      "difficulty": "medium"
+    },
+    {
+      "id": "BUG_007",
+      "file": "Offerqueue.kt",
+      "function": "enqueue",
+      "category": "memory_leak",
+      "severity": "high",
+      "security_relevant": true,
+      "description": "OfferQueue (a singleton object) now stores the raw Context passed into enqueue() instead of context.applicationContext. If an Activity context is ever passed in, the Activity can never be garbage-collected, a classic static-reference memory leak.",
+      "injection": {
+        "find": "        if (appContext == null) appContext = context.applicationContext\n",
+        "replace_with": "        if (appContext == null) appContext = context\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "applicationContext",
+          "memory leak",
+          "static",
+          "Activity",
+          "context",
+          "singleton",
+          "garbage"
+        ]
+      },
+      "difficulty": "hard"
+    },
+    {
+      "id": "BUG_009",
+      "file": "MainActivity.kt",
+      "function": "cleanupOldTrailFiles",
+      "category": "data_loss",
+      "severity": "high",
+      "security_relevant": true,
+      "description": "Comparison operator flipped (< became >): cleanup now deletes every trail file newer than the cutoff date (the recent data worth keeping) while leaving everything older than keepDays untouched -- the exact opposite of the intended retention policy.",
+      "injection": {
+        "find": "                    if (dayStr < cutoffDay) {\n",
+        "replace_with": "                    if (dayStr > cutoffDay) {\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "cutoff",
+          "retention",
+          "delete",
+          "recent",
+          "data loss",
+          "inverted",
+          "flipped",
+          "wrong files"
+        ]
+      },
+      "difficulty": "medium"
+    },
+    {
+      "id": "BUG_010",
+      "file": "AgentContextBuilder.kt",
+      "function": "distanceMiles",
+      "category": "unit_conversion_error",
+      "severity": "medium",
+      "security_relevant": false,
+      "description": "Earth-radius constant swapped from miles (3958.8) to kilometers (6371.0) inside the haversine helper. Every distance the AI agent context reports as 'mi' is actually ~1.6x too large.",
+      "injection": {
+        "find": "        val R = 3958.8\n",
+        "replace_with": "        val R = 6371.0\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "3958.8",
+          "6371",
+          "radius",
+          "miles",
+          "kilometers",
+          "haversine",
+          "Earth radius"
+        ]
+      },
+      "difficulty": "medium"
+    },
+    {
+      "id": "BUG_011",
+      "file": "OfferScorer.kt",
+      "function": "scoreOffer",
+      "category": "business_rule_violation",
+      "severity": "medium",
+      "security_relevant": false,
+      "difficulty": "hard",
+      "description": "Per-item penalty multiplier inflated 10x (0.05 -> 0.5) in scoreOffer. Offers with >5 items are penalized ~10x too heavily on pay-per-mile, so good multi-item offers get mislabeled as 'low pay'/'very low pay'.",
+      "injection": {
+        "find": "        val itemPenalty = if (itemCount != null && itemCount > 5) (itemCount - 5) * 0.05 else 0.0\n",
+        "replace_with": "        val itemPenalty = if (itemCount != null && itemCount > 5) (itemCount - 5) * 0.5 else 0.0\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "itemPenalty",
+          "0.05",
+          "0.5",
+          "penalty",
+          "per-item",
+          "multiplier",
+          "item count",
+          "pay-per-mile",
+          "10x"
+        ]
+      }
+    },
+    {
+      "id": "BUG_012",
+      "file": "OfferScorer.kt",
+      "function": "scoreOffer",
+      "category": "cross_file_contract",
+      "severity": "high",
+      "security_relevant": false,
+      "difficulty": "expert",
+      "description": "Default removed from scoreOffer's itemCount parameter (Int? = null -> Int?). scoreOffer is still called with two args elsewhere (RouteFitAccessibilityService.scoreOffer(amount, platformMiles)), so that call site no longer compiles -- a cross-file contract break invisible from this file's diff alone.",
+      "injection": {
+        "find": "    fun scoreOffer(amount: String?, distanceMiles: Double?, itemCount: Int? = null): String {\n",
+        "replace_with": "    fun scoreOffer(amount: String?, distanceMiles: Double?, itemCount: Int?): String {\n"
+      },
+      "detection_hints": {
+        "must_mention_any": [
+          "default",
+          "itemCount",
+          "scoreOffer",
+          "signature",
+          "caller",
+          "two-argument",
+          "two argument",
+          "= null",
+          "breaks",
+          "call site"
+        ]
+      }
+    }
+  ]
+}

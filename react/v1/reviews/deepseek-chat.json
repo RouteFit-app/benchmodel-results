@@ -1,0 +1,123 @@
+{
+  "run_at": "2026-06-19T05:19:51.047497+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react",
+  "known_bug_count": 10,
+  "tech_stack": "React / Frontend",
+  "reviewer_ai": "deepseek-chat",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 5311,
+  "result": {
+    "review_id": "ce83c1df-d071-4f6f-b1ff-2000d1c8da4a",
+    "overall_score": 4.5,
+    "summary": "The diff introduces several high-severity defects: inverted conditions in UserInformation, useAuth, and Items query invalidation, and removal of validation in ChangePassword. A few low-severity or informational changes are also present. The fixes for EditUser and theme-provider appear correct.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "93",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Logic inverted: password was being deleted when set, now correctly deletes when password is empty.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "65",
+        "severity": "high",
+        "status": "open",
+        "issue": "Invalidates 'users' query instead of 'items' after adding an item, causing stale item data.",
+        "suggested_fix": "Revert query key to 'items' to properly invalidate item list.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "line_range": "34-37",
+        "severity": "high",
+        "status": "open",
+        "issue": "Removed password confirmation validation, allowing mismatched passwords to be submitted.",
+        "suggested_fix": "Restore the .refine() validation to enforce password match.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "146",
+        "severity": "high",
+        "status": "open",
+        "issue": "Inverted disabled logic: button now disabled when form IS dirty, preventing updates.",
+        "suggested_fix": "Revert to disabled={!form.formState.isDirty} to allow saving only when changed.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "26",
+        "severity": "high",
+        "status": "open",
+        "issue": "Inverted enabled flag: query now runs when user is NOT logged in, causing unauthorized requests.",
+        "suggested_fix": "Change to enabled: isLoggedIn() to only fetch user when logged in.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "99",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Removed +1 from page start index, now showing start as 0-based instead of 1-based, breaking UI display.",
+        "suggested_fix": "Restore +1 or adjust display logic to show 1-based page start.",
+        "confidence": 90.0
+      },
+      {
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "line_range": "79",
+        "severity": "low",
+        "status": "open",
+        "issue": "Removed form.reset() means form fields persist after successful user creation, potential data leakage or UX issue.",
+        "suggested_fix": "Re-add form.reset() after onSuccess to clear form fields.",
+        "confidence": 70.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "90",
+        "severity": "low",
+        "status": "resolved",
+        "issue": "Removed 'theme' from dependency array, effect may not re-run on theme change. Likely intentional if theme is stable.",
+        "suggested_fix": "No further action needed; fix appears correct for intended behavior.",
+        "confidence": 75.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "42",
+        "severity": "low",
+        "status": "informational",
+        "issue": "Removed await before loginAccessToken call; may cause unhandled promise or timing issues.",
+        "suggested_fix": "Add await to ensure token is set after response arrives.",
+        "confidence": 70.0
+      },
+      {
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "line_range": "14",
+        "severity": "low",
+        "status": "informational",
+        "issue": "Reduced limit from 100 to 10, may impact pagination or user experience.",
+        "suggested_fix": "Confirm intended limit with product or add pagination support.",
+        "confidence": 60.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/AddUser.tsx",
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/UserSettings/ChangePassword.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/routes/_layout/items.tsx"
+    ],
+    "files_skipped": []
+  }
+}

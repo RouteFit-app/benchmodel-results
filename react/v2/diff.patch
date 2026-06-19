@@ -1,0 +1,110 @@
+diff --git a/frontend/src/components/Admin/EditUser.tsx b/frontend/src/components/Admin/EditUser.tsx
+index 172904f..ce32669 100644
+--- a/frontend/src/components/Admin/EditUser.tsx
++++ b/frontend/src/components/Admin/EditUser.tsx
+@@ -44,7 +44,7 @@ const formSchema = z
+     is_superuser: z.boolean().optional(),
+     is_active: z.boolean().optional(),
+   })
+-  .refine((data) => !data.password || data.password === data.confirm_password, {
++  .refine((data) => !data.password && data.password === data.confirm_password, {
+     message: "The passwords don't match",
+     path: ["confirm_password"],
+   })
+diff --git a/frontend/src/components/Common/DataTable.tsx b/frontend/src/components/Common/DataTable.tsx
+index e5bf2ae..f90a24d 100644
+--- a/frontend/src/components/Common/DataTable.tsx
++++ b/frontend/src/components/Common/DataTable.tsx
+@@ -99,11 +99,8 @@ export function DataTable<TData, TValue>({
+                 table.getState().pagination.pageSize +
+                 1}{" "}
+               to{" "}
+-              {Math.min(
+-                (table.getState().pagination.pageIndex + 1) *
+-                  table.getState().pagination.pageSize,
+-                data.length,
+-              )}{" "}
++              {(table.getState().pagination.pageIndex + 1) *
++                table.getState().pagination.pageSize}{" "}
+               of{" "}
+               <span className="font-medium text-foreground">{data.length}</span>{" "}
+               entries
+diff --git a/frontend/src/components/Items/AddItem.tsx b/frontend/src/components/Items/AddItem.tsx
+index 7c7c10c..f3696cc 100644
+--- a/frontend/src/components/Items/AddItem.tsx
++++ b/frontend/src/components/Items/AddItem.tsx
+@@ -60,7 +60,7 @@ const AddItem = () => {
+       form.reset()
+       setIsOpen(false)
+     },
+-    onError: handleError.bind(showErrorToast),
++    onError: handleError.bind(showSuccessToast),
+     onSettled: () => {
+       queryClient.invalidateQueries({ queryKey: ["items"] })
+     },
+diff --git a/frontend/src/components/Items/EditItem.tsx b/frontend/src/components/Items/EditItem.tsx
+index 3d57f55..12e4743 100644
+--- a/frontend/src/components/Items/EditItem.tsx
++++ b/frontend/src/components/Items/EditItem.tsx
+@@ -67,7 +67,7 @@ const EditItem = ({ item, onSuccess }: EditItemProps) => {
+     },
+     onError: handleError.bind(showErrorToast),
+     onSettled: () => {
+-      queryClient.invalidateQueries({ queryKey: ["items"] })
++      queryClient.invalidateQueries({ queryKey: ["items", item.id] })
+     },
+   })
+ 
+diff --git a/frontend/src/components/UserSettings/UserInformation.tsx b/frontend/src/components/UserSettings/UserInformation.tsx
+index 4bfaf60..f6acfff 100644
+--- a/frontend/src/components/UserSettings/UserInformation.tsx
++++ b/frontend/src/components/UserSettings/UserInformation.tsx
+@@ -65,7 +65,7 @@ const UserInformation = () => {
+     const updateData: UserUpdateMe = {}
+ 
+     // only include fields that have changed
+-    if (data.full_name !== currentUser?.full_name) {
++    if (data.full_name === currentUser?.full_name) {
+       updateData.full_name = data.full_name
+     }
+     if (data.email !== currentUser?.email) {
+diff --git a/frontend/src/components/theme-provider.tsx b/frontend/src/components/theme-provider.tsx
+index a582b28..0b9a2a1 100644
+--- a/frontend/src/components/theme-provider.tsx
++++ b/frontend/src/components/theme-provider.tsx
+@@ -83,10 +83,6 @@ export function ThemeProvider({
+     }
+ 
+     mediaQuery.addEventListener("change", handleChange)
+-
+-    return () => {
+-      mediaQuery.removeEventListener("change", handleChange)
+-    }
+   }, [theme, updateTheme, getResolvedTheme])
+ 
+   const value = {
+diff --git a/frontend/src/hooks/useAuth.ts b/frontend/src/hooks/useAuth.ts
+index 7ccc795..b735cc2 100644
+--- a/frontend/src/hooks/useAuth.ts
++++ b/frontend/src/hooks/useAuth.ts
+@@ -12,7 +12,7 @@ import { handleError } from "@/utils"
+ import useCustomToast from "./useCustomToast"
+ 
+ const isLoggedIn = () => {
+-  return localStorage.getItem("access_token") !== null
++  return localStorage.getItem("access_token") !== undefined
+ }
+ 
+ const useAuth = () => {
+diff --git a/frontend/src/hooks/useMobile.ts b/frontend/src/hooks/useMobile.ts
+index 2b0fe1d..3d76fc6 100644
+--- a/frontend/src/hooks/useMobile.ts
++++ b/frontend/src/hooks/useMobile.ts
+@@ -12,7 +12,6 @@ export function useIsMobile() {
+     }
+     mql.addEventListener("change", onChange)
+     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+-    return () => mql.removeEventListener("change", onChange)
+   }, [])
+ 
+   return !!isMobile

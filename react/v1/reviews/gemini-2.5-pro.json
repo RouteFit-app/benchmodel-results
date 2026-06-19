@@ -1,0 +1,123 @@
+{
+  "run_at": "2026-06-19T05:19:15.353183+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react",
+  "known_bug_count": 10,
+  "tech_stack": "React / Frontend",
+  "reviewer_ai": "gemini-2.5-pro",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 5311,
+  "result": {
+    "review_id": "b55b34e4-61bb-4b0c-bf83-e85aa5df9343",
+    "overall_score": 0.5,
+    "summary": "This diff introduces a significant number of regressions and bugs across the frontend. Almost every change is incorrect, inverting logic, removing critical validation, and breaking core features like login and password changes. The changes appear to be destructive and should be rejected entirely.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "93-95",
+        "severity": "high",
+        "status": "open",
+        "issue": "The logic for updating a user's password has been inverted, preventing password changes from being submitted.",
+        "suggested_fix": "Revert the condition from `if (submitData.password)` to `if (!submitData.password)`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "line_range": "35-39",
+        "severity": "high",
+        "status": "open",
+        "issue": "The validation check that confirms the new password and confirmation password match has been removed.",
+        "suggested_fix": "Restore the `.refine(...)` call to the Zod schema to ensure passwords match before submission.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "26-26",
+        "severity": "high",
+        "status": "open",
+        "issue": "The query to fetch the current user's data is now enabled only when the user is *not* logged in, which is incorrect.",
+        "suggested_fix": "Revert the `enabled` condition to `isLoggedIn()` to fetch user data after login.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "40-42",
+        "severity": "high",
+        "status": "open",
+        "issue": "The 'await' keyword was removed from an asynchronous API call during login, which will break the login flow.",
+        "suggested_fix": "Restore the `await` keyword for the `LoginService.loginAccessToken` call.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "line_range": "78-78",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Form is not reset after successful user creation, which will show stale data the next time the form is opened.",
+        "suggested_fix": "Restore the `form.reset()` call in the `onSuccess` handler to clear the form after submission.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "64-64",
+        "severity": "medium",
+        "status": "open",
+        "issue": "After adding an item, the wrong query key ('users') is invalidated. This prevents the items list from automatically refreshing.",
+        "suggested_fix": "Invalidate the correct query key: `queryClient.invalidateQueries({ queryKey: [\"items\"] })`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "146-146",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The 'Save' button's disabled logic is inverted. It is now disabled when the form has changes and enabled when it doesn't.",
+        "suggested_fix": "Revert the disabled logic to `disabled={!form.formState.isDirty}`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "98-100",
+        "severity": "low",
+        "status": "open",
+        "issue": "The calculation for the starting item number in the pagination display is incorrect, resulting in an off-by-one error (e.g., 'Showing 0 to 10').",
+        "suggested_fix": "Change the calculation for the starting item number back to `...pageSize + 1`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "90-90",
+        "severity": "low",
+        "status": "open",
+        "issue": "The 'theme' prop was removed from a useEffect dependency array, which could lead to a stale closure and incorrect behavior when the theme is changed.",
+        "suggested_fix": "Add `theme` back to the useEffect dependency array to ensure the effect re-runs when the theme prop changes.",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "line_range": "13-13",
+        "severity": "low",
+        "status": "open",
+        "issue": "The item fetch limit was reduced from 100 to 10. This may be an unintended change that causes incomplete data display.",
+        "suggested_fix": "Verify if this change is intended and consistent with pagination settings. If not, revert the limit to 100.",
+        "confidence": 80.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/AddUser.tsx",
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/UserSettings/ChangePassword.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/routes/_layout/items.tsx"
+    ],
+    "files_skipped": []
+  }
+}

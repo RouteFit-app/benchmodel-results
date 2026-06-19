@@ -1,0 +1,128 @@
+diff --git a/frontend/src/components/Admin/AddUser.tsx b/frontend/src/components/Admin/AddUser.tsx
+index a0b534b..2aa2036 100644
+--- a/frontend/src/components/Admin/AddUser.tsx
++++ b/frontend/src/components/Admin/AddUser.tsx
+@@ -76,7 +76,6 @@ const AddUser = () => {
+       UsersService.createUser({ requestBody: data }),
+     onSuccess: () => {
+       showSuccessToast("User created successfully")
+-      form.reset()
+       setIsOpen(false)
+     },
+     onError: handleError.bind(showErrorToast),
+diff --git a/frontend/src/components/Admin/EditUser.tsx b/frontend/src/components/Admin/EditUser.tsx
+index 172904f..ebae6e6 100644
+--- a/frontend/src/components/Admin/EditUser.tsx
++++ b/frontend/src/components/Admin/EditUser.tsx
+@@ -90,7 +90,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
+   const onSubmit = (data: FormData) => {
+     // exclude confirm_password from submission data and remove password if empty
+     const { confirm_password: _, ...submitData } = data
+-    if (!submitData.password) {
++    if (submitData.password) {
+       delete submitData.password
+     }
+     mutation.mutate(submitData)
+diff --git a/frontend/src/components/Common/DataTable.tsx b/frontend/src/components/Common/DataTable.tsx
+index e5bf2ae..5df964a 100644
+--- a/frontend/src/components/Common/DataTable.tsx
++++ b/frontend/src/components/Common/DataTable.tsx
+@@ -96,8 +96,7 @@ export function DataTable<TData, TValue>({
+             <div className="text-sm text-muted-foreground">
+               Showing{" "}
+               {table.getState().pagination.pageIndex *
+-                table.getState().pagination.pageSize +
+-                1}{" "}
++                table.getState().pagination.pageSize}{" "}
+               to{" "}
+               {Math.min(
+                 (table.getState().pagination.pageIndex + 1) *
+diff --git a/frontend/src/components/Items/AddItem.tsx b/frontend/src/components/Items/AddItem.tsx
+index 7c7c10c..43b24e3 100644
+--- a/frontend/src/components/Items/AddItem.tsx
++++ b/frontend/src/components/Items/AddItem.tsx
+@@ -62,7 +62,7 @@ const AddItem = () => {
+     },
+     onError: handleError.bind(showErrorToast),
+     onSettled: () => {
+-      queryClient.invalidateQueries({ queryKey: ["items"] })
++      queryClient.invalidateQueries({ queryKey: ["users"] })
+     },
+   })
+ 
+diff --git a/frontend/src/components/UserSettings/ChangePassword.tsx b/frontend/src/components/UserSettings/ChangePassword.tsx
+index aeb8537..bf09565 100644
+--- a/frontend/src/components/UserSettings/ChangePassword.tsx
++++ b/frontend/src/components/UserSettings/ChangePassword.tsx
+@@ -31,10 +31,6 @@ const formSchema = z
+       .string()
+       .min(1, { message: "Password confirmation is required" }),
+   })
+-  .refine((data) => data.new_password === data.confirm_password, {
+-    message: "The passwords don't match",
+-    path: ["confirm_password"],
+-  })
+ 
+ type FormData = z.infer<typeof formSchema>
+ 
+diff --git a/frontend/src/components/UserSettings/UserInformation.tsx b/frontend/src/components/UserSettings/UserInformation.tsx
+index 4bfaf60..a69b35a 100644
+--- a/frontend/src/components/UserSettings/UserInformation.tsx
++++ b/frontend/src/components/UserSettings/UserInformation.tsx
+@@ -143,7 +143,7 @@ const UserInformation = () => {
+                 <LoadingButton
+                   type="submit"
+                   loading={mutation.isPending}
+-                  disabled={!form.formState.isDirty}
++                  disabled={form.formState.isDirty}
+                 >
+                   Save
+                 </LoadingButton>
+diff --git a/frontend/src/components/theme-provider.tsx b/frontend/src/components/theme-provider.tsx
+index a582b28..470dfeb 100644
+--- a/frontend/src/components/theme-provider.tsx
++++ b/frontend/src/components/theme-provider.tsx
+@@ -87,7 +87,7 @@ export function ThemeProvider({
+     return () => {
+       mediaQuery.removeEventListener("change", handleChange)
+     }
+-  }, [theme, updateTheme, getResolvedTheme])
++  }, [updateTheme, getResolvedTheme])
+ 
+   const value = {
+     theme,
+diff --git a/frontend/src/hooks/useAuth.ts b/frontend/src/hooks/useAuth.ts
+index 7ccc795..08de305 100644
+--- a/frontend/src/hooks/useAuth.ts
++++ b/frontend/src/hooks/useAuth.ts
+@@ -23,7 +23,7 @@ const useAuth = () => {
+   const { data: user } = useQuery<UserPublic | null, Error>({
+     queryKey: ["currentUser"],
+     queryFn: UsersService.readUserMe,
+-    enabled: isLoggedIn(),
++    enabled: !isLoggedIn(),
+   })
+ 
+   const signUpMutation = useMutation({
+@@ -39,7 +39,7 @@ const useAuth = () => {
+   })
+ 
+   const login = async (data: AccessToken) => {
+-    const response = await LoginService.loginAccessToken({
++    const response = LoginService.loginAccessToken({
+       formData: data,
+     })
+     localStorage.setItem("access_token", response.access_token)
+diff --git a/frontend/src/routes/_layout/items.tsx b/frontend/src/routes/_layout/items.tsx
+index a4df200..1417f9b 100644
+--- a/frontend/src/routes/_layout/items.tsx
++++ b/frontend/src/routes/_layout/items.tsx
+@@ -11,7 +11,7 @@ import PendingItems from "@/components/Pending/PendingItems"
+ 
+ function getItemsQueryOptions() {
+   return {
+-    queryFn: () => ItemsService.readItems({ skip: 0, limit: 100 }),
++    queryFn: () => ItemsService.readItems({ skip: 0, limit: 10 }),
+     queryKey: ["items"],
+   }
+ }

@@ -1,0 +1,100 @@
+{
+  "run_at": "2026-06-19T03:13:50.392125+00:00",
+  "benchmark_name": "RouteFit Bug Injection",
+  "repo": "https://github.com/RouteFit-app/routefit",
+  "base_branch": "main",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "gemini-2.5-pro",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4616,
+  "result": {
+    "review_id": "705b2187-c21b-4c8f-90ae-929a7f240256",
+    "overall_score": 1.0,
+    "summary": "This diff introduces several high-severity regressions, including a memory leak in Offerqueue, multiple logic errors in MainActivity's date/file handling, and a disabled speed check. The changes appear to be untested and break core functionality. This submission should be rejected and reworked.",
+    "findings": [
+      {
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "line_range": "36",
+        "severity": "high",
+        "status": "open",
+        "issue": "Storing a direct context reference in a singleton object introduces a memory leak.",
+        "suggested_fix": "Revert to using `context.applicationContext` to prevent leaking Activity or Service contexts.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "498",
+        "severity": "high",
+        "status": "open",
+        "issue": "The logic for calculating a past date is inverted. `add(..., daysBack)` will move the date into the future if `daysBack` is positive.",
+        "suggested_fix": "Revert the change to `add(Calendar.DAY_OF_YEAR, -daysBack)` to correctly calculate a date in the past.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7149",
+        "severity": "high",
+        "status": "open",
+        "issue": "The file cleanup logic is inverted. It now compares `dayStr > cutoffDay`, which would delete recent files instead of old ones.",
+        "suggested_fix": "Revert the comparison to `dayStr < cutoffDay` to correctly identify and delete files older than the cutoff date.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "568",
+        "severity": "high",
+        "status": "open",
+        "issue": "The speed check threshold was increased from 40.0 m/s to 400.0 m/s (over 890 mph), which makes the check ineffective for any realistic scenario.",
+        "suggested_fix": "Revert the speed threshold to a realistic value, such as the original 40.0 m/s, or verify the intended new value.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "624",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The call to `speechRecognizer?.destroy()` was removed from `onDestroy`, which will cause a resource leak.",
+        "suggested_fix": "Restore the `speechRecognizer?.destroy()` call in the `onDestroy` method to properly release its resources.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7136",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The function `distanceMeters` is now dividing by 1000, causing it to return kilometers instead of meters, which contradicts its name.",
+        "suggested_fix": "Either rename the function to `distanceKilometers` or remove the `/ 1000` to make it return meters as the name implies.",
+        "confidence": 100.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "8",
+        "severity": "low",
+        "status": "open",
+        "issue": "The variable `roundTrip` is now assigned the one-way distance, making its name misleading and the code harder to understand.",
+        "suggested_fix": "Rename the variable to `distance` or `oneWayMiles` to accurately reflect its value.",
+        "confidence": 95.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "line_range": "172",
+        "severity": "low",
+        "status": "informational",
+        "issue": "The Earth's radius constant `R` was changed from miles (3958.8) to kilometers (6371.0), changing the distance calculation's unit.",
+        "suggested_fix": "This is a note for awareness. Ensure all calling code correctly handles the new unit (kilometers instead of miles).",
+        "confidence": 100.0
+      }
+    ],
+    "files_reviewed": [
+      "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+      "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+      "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+      "app/src/main/java/com/menelik/routefit/Offerqueue.kt"
+    ],
+    "files_skipped": []
+  }
+}

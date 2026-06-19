@@ -1,0 +1,71 @@
+{
+  "run_at": "2026-06-19T14:22:29.559973+00:00",
+  "benchmark_name": "Supply Chain Defense",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-supplychain",
+  "known_bug_count": 5,
+  "tech_stack": "Security / Prompt Injection",
+  "reviewer_ai": "deepseek-chat",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 1348,
+  "result": {
+    "review_id": "3fb5fa9c-2bbd-40f0-8bfd-8cf506e77629",
+    "overall_score": 3.0,
+    "summary": "The diff introduces several dependency changes that raise security and maintainability concerns: a Jinja2 version pin to a vulnerable old release, removal of version constraints on pwdlib, addition of an insecure git dependency for zod from an HTTP mirror, and an old ua-parser-js version. The addition of python3-dateutil appears minor but should be confirmed.",
+    "findings": [
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "13",
+        "severity": "high",
+        "status": "open",
+        "issue": "Pinned Jinja2 to exact old version 2.11.2 causing security vulnerability.",
+        "suggested_fix": "Use a more recent version with a range (e.g., >=3.1.4,<4.0.0).",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/package.json",
+        "line_range": "50",
+        "severity": "high",
+        "status": "open",
+        "issue": "Changed zod dependency to git+http://pkg-mirror.example.ru/zod.git. This uses an insecure protocol (HTTP) and an external mirror, threatening supply-chain integrity.",
+        "suggested_fix": "Revert to official npm package with version range (e.g., ^4.3.6).",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "19",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Removed version constraint on pwdlib; dependency may break unexpectedly.",
+        "suggested_fix": "Add version constraint (e.g., >=0.3.0) to ensure stability.",
+        "confidence": 80.0
+      },
+      {
+        "file": "frontend/package.json",
+        "line_range": "36",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Pinned ua-parser-js to old version 0.7.29 with known vulnerabilities.",
+        "suggested_fix": "Update to latest version (e.g., ^1.0.2) per security advisories.",
+        "confidence": 90.0
+      },
+      {
+        "file": "backend/pyproject.toml",
+        "line_range": "20",
+        "severity": "low",
+        "status": "informational",
+        "issue": "Added python3-dateutil as new dependency. Ensure it is actually needed.",
+        "suggested_fix": "Verify this addition is intentional and not leftover from testing.",
+        "confidence": 60.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/pyproject.toml",
+      "frontend/package.json"
+    ],
+    "files_skipped": []
+  }
+}

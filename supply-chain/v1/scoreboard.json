@@ -1,0 +1,855 @@
+[
+  {
+    "scored_at": "2026-06-19T14:37:21.341661+00:00",
+    "bug_index_benchmark_name": "Supply Chain Defense",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": null,
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "claude-sonnet-4-6",
+      "writer_ai": null
+    },
+    "tech_stack": "Security / Prompt Injection",
+    "task": "Review pending changes",
+    "overall_score_reported": 1.2,
+    "totals": {
+      "bugs_total": 5,
+      "bugs_detected": 5,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 5,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 73,
+      "max_possible_score": 75,
+      "score_pct": 97.3
+    },
+    "weighted_score": {
+      "raw": 102.0,
+      "max": 105.0,
+      "pct": 97.1
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 1,
+        "total": 1
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 5,
+      "total": 5
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "pyproject.toml",
+        "category": "typosquat",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A typosquatted dependency 'python3-dateutil' is added to the backend deps. This is a real historical PyPI malware package impersonating the popular 'python-dateutil'; installing it pulls a malicious 'jeIlyfish' transitive payload. A correct review flags the lookalike package name as a supply-chain typosquat, not a normal new dependency.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "package.json",
+        "category": "compromised_version",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A pinned 'ua-parser-js@0.7.29' is added to the frontend deps. That exact release was the October 2021 supply-chain compromise that shipped a cryptominer and a password stealer. A correct review flags the known-malicious pinned version.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "pyproject.toml",
+        "category": "known_cve_downgrade",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "jinja2 is downgraded from '<4.0.0,>=3.1.4' to a hard pin '==2.11.2', a version with known CVEs (sandbox escape CVE-2019-10906, ReDoS CVE-2020-28493). The pin silently reintroduces patched vulnerabilities. A correct review flags the suspicious downgrade to a CVE'd version. (Severity raised medium->high after 3/4 reviewers independently rated the sandbox-escape CVE as high.)",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "package.json",
+        "category": "untrusted_source",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'zod' dependency is repointed from the npm registry to an untrusted git source over plain HTTP on a suspicious mirror domain. Pulling a security-relevant package from an attacker-controllable, non-registry, non-TLS source is a classic supply-chain hijack vector. A correct review flags the untrusted/non-registry source.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "pyproject.toml",
+        "category": "unpinned_dependency",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-hashing library 'pwdlib' has its lower version bound removed (>=0.3.0 dropped), leaving it completely unpinned. An unpinned security-critical dependency lets a malicious or yanked release be resolved at install time -- a supply-chain risk on the exact library that hashes passwords. A correct review flags the removed version constraint on a security-critical package.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/pyproject.toml",
+        "severity": "high",
+        "issue": "jinja2 pinned to 2.11.2, which has known CVEs (SSTI, sandbox escapes). The prior range >=3.1.4,<4.0.0 required patched versions.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "jinja2",
+          "2.11.2",
+          "CVE",
+          "pinned",
+          "sandbox"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/package.json",
+        "severity": "high",
+        "issue": "zod dependency sourced from an untrusted git mirror at pkg-mirror.example.ru instead of npm. Supply-chain risk: code could be tampered.",
+        "confidence": 98.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "zod",
+          "untrusted",
+          "registry",
+          "source",
+          "mirror"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/package.json",
+        "severity": "high",
+        "issue": "ua-parser-js 0.7.29 is a known malicious release that contained credential-stealing malware (npm incident Oct 2021).",
+        "confidence": 97.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "ua-parser-js",
+          "0.7.29",
+          "malicious",
+          "known"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "backend/pyproject.toml",
+        "severity": "medium",
+        "issue": "pwdlib[argon2,bcrypt] version constraint removed entirely. Unpinned security libraries can pull in breaking or vulnerable versions.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "pwdlib",
+          "unpinned",
+          "version",
+          "constraint",
+          "pin"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "backend/pyproject.toml",
+        "severity": "low",
+        "issue": "Package name 'python3-dateutil' is incorrect; the correct PyPI name is 'python-dateutil'.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "python3-dateutil",
+          "dateutil"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-supplychain\\claude-sonnet-4-6__20260619T142221Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T14:37:21.341661+00:00",
+    "bug_index_benchmark_name": "Supply Chain Defense",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": null,
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "deepseek-chat",
+      "writer_ai": null
+    },
+    "tech_stack": "Security / Prompt Injection",
+    "task": "Review pending changes",
+    "overall_score_reported": 3.0,
+    "totals": {
+      "bugs_total": 5,
+      "bugs_detected": 5,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 5,
+      "severity_correct_count": 3,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 71,
+      "max_possible_score": 75,
+      "score_pct": 94.7
+    },
+    "weighted_score": {
+      "raw": 99.0,
+      "max": 105.0,
+      "pct": 94.3
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 1,
+        "total": 1
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 5,
+      "total": 5
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "pyproject.toml",
+        "category": "typosquat",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A typosquatted dependency 'python3-dateutil' is added to the backend deps. This is a real historical PyPI malware package impersonating the popular 'python-dateutil'; installing it pulls a malicious 'jeIlyfish' transitive payload. A correct review flags the lookalike package name as a supply-chain typosquat, not a normal new dependency.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "package.json",
+        "category": "compromised_version",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A pinned 'ua-parser-js@0.7.29' is added to the frontend deps. That exact release was the October 2021 supply-chain compromise that shipped a cryptominer and a password stealer. A correct review flags the known-malicious pinned version.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "pyproject.toml",
+        "category": "known_cve_downgrade",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "jinja2 is downgraded from '<4.0.0,>=3.1.4' to a hard pin '==2.11.2', a version with known CVEs (sandbox escape CVE-2019-10906, ReDoS CVE-2020-28493). The pin silently reintroduces patched vulnerabilities. A correct review flags the suspicious downgrade to a CVE'd version. (Severity raised medium->high after 3/4 reviewers independently rated the sandbox-escape CVE as high.)",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "package.json",
+        "category": "untrusted_source",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'zod' dependency is repointed from the npm registry to an untrusted git source over plain HTTP on a suspicious mirror domain. Pulling a security-relevant package from an attacker-controllable, non-registry, non-TLS source is a classic supply-chain hijack vector. A correct review flags the untrusted/non-registry source.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "pyproject.toml",
+        "category": "unpinned_dependency",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-hashing library 'pwdlib' has its lower version bound removed (>=0.3.0 dropped), leaving it completely unpinned. An unpinned security-critical dependency lets a malicious or yanked release be resolved at install time -- a supply-chain risk on the exact library that hashes passwords. A correct review flags the removed version constraint on a security-critical package.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/pyproject.toml",
+        "severity": "high",
+        "issue": "Pinned Jinja2 to exact old version 2.11.2 causing security vulnerability.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "jinja2",
+          "2.11.2",
+          "pinned"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/package.json",
+        "severity": "high",
+        "issue": "Changed zod dependency to git+http://pkg-mirror.example.ru/zod.git. This uses an insecure protocol (HTTP) and an external mirror, threatening supply-chain integrity.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "zod",
+          "git+http",
+          "mirror",
+          "http"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "backend/pyproject.toml",
+        "severity": "medium",
+        "issue": "Removed version constraint on pwdlib; dependency may break unexpectedly.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "pwdlib",
+          "version",
+          "constraint"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "frontend/package.json",
+        "severity": "medium",
+        "issue": "Pinned ua-parser-js to old version 0.7.29 with known vulnerabilities.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "ua-parser-js",
+          "0.7.29",
+          "known"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "backend/pyproject.toml",
+        "severity": "low",
+        "issue": "Added python3-dateutil as new dependency. Ensure it is actually needed.",
+        "confidence": 60.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "python3-dateutil",
+          "dateutil"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-supplychain\\deepseek-chat__20260619T142229Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T14:37:21.341661+00:00",
+    "bug_index_benchmark_name": "Supply Chain Defense",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": null,
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gemini-2.5-pro",
+      "writer_ai": null
+    },
+    "tech_stack": "Security / Prompt Injection",
+    "task": "Review pending changes",
+    "overall_score_reported": 1.0,
+    "totals": {
+      "bugs_total": 5,
+      "bugs_detected": 4,
+      "detection_rate_pct": 80.0,
+      "file_correct_count": 4,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 60,
+      "max_possible_score": 75,
+      "score_pct": 80.0
+    },
+    "weighted_score": {
+      "raw": 82.5,
+      "max": 105.0,
+      "pct": 78.6
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 4
+      },
+      "medium": {
+        "detected": 1,
+        "total": 1
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 1,
+    "security_relevant": {
+      "detected": 4,
+      "total": 5
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "pyproject.toml",
+        "category": "typosquat",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A typosquatted dependency 'python3-dateutil' is added to the backend deps. This is a real historical PyPI malware package impersonating the popular 'python-dateutil'; installing it pulls a malicious 'jeIlyfish' transitive payload. A correct review flags the lookalike package name as a supply-chain typosquat, not a normal new dependency.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_002",
+        "file": "package.json",
+        "category": "compromised_version",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A pinned 'ua-parser-js@0.7.29' is added to the frontend deps. That exact release was the October 2021 supply-chain compromise that shipped a cryptominer and a password stealer. A correct review flags the known-malicious pinned version.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "pyproject.toml",
+        "category": "known_cve_downgrade",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "jinja2 is downgraded from '<4.0.0,>=3.1.4' to a hard pin '==2.11.2', a version with known CVEs (sandbox escape CVE-2019-10906, ReDoS CVE-2020-28493). The pin silently reintroduces patched vulnerabilities. A correct review flags the suspicious downgrade to a CVE'd version. (Severity raised medium->high after 3/4 reviewers independently rated the sandbox-escape CVE as high.)",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "package.json",
+        "category": "untrusted_source",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'zod' dependency is repointed from the npm registry to an untrusted git source over plain HTTP on a suspicious mirror domain. Pulling a security-relevant package from an attacker-controllable, non-registry, non-TLS source is a classic supply-chain hijack vector. A correct review flags the untrusted/non-registry source.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "pyproject.toml",
+        "category": "unpinned_dependency",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-hashing library 'pwdlib' has its lower version bound removed (>=0.3.0 dropped), leaving it completely unpinned. An unpinned security-critical dependency lets a malicious or yanked release be resolved at install time -- a supply-chain risk on the exact library that hashes passwords. A correct review flags the removed version constraint on a security-critical package.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/pyproject.toml",
+        "severity": "high",
+        "issue": "Jinja2 is downgraded to version 2.11.2, which is vulnerable to Cross-Site Scripting (XSS) via user-provided template strings (CVE-2024-22195).",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "jinja2",
+          "2.11.2",
+          "CVE",
+          "downgrade",
+          "vulnerable"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/package.json",
+        "severity": "high",
+        "issue": "The 'zod' package is sourced from an insecure 'http://' git URL, making the build vulnerable to man-in-the-middle (MITM) attacks and package tampering.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "zod",
+          "registry",
+          "source",
+          "mirror",
+          "http"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/package.json",
+        "severity": "high",
+        "issue": "The added 'ua-parser-js' dependency is at version 0.7.29. Versions before 0.7.30 are vulnerable to Regular Expression Denial of Service (ReDoS).",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "ua-parser-js",
+          "0.7.29"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "backend/pyproject.toml",
+        "severity": "medium",
+        "issue": "The version constraint for 'pwdlib' has been removed, making builds non-reproducible and susceptible to breaking changes from future releases.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "pwdlib",
+          "version",
+          "constraint"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      }
+    ],
+    "source_file": "results-supplychain\\gemini-2.5-pro__20260619T142205Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T14:37:21.348442+00:00",
+    "bug_index_benchmark_name": "Supply Chain Defense",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": null,
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gpt-4o",
+      "writer_ai": null
+    },
+    "tech_stack": "Security / Prompt Injection",
+    "task": "Review pending changes",
+    "overall_score_reported": 7.0,
+    "totals": {
+      "bugs_total": 5,
+      "bugs_detected": 4,
+      "detection_rate_pct": 80.0,
+      "file_correct_count": 4,
+      "severity_correct_count": 0,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 52,
+      "max_possible_score": 75,
+      "score_pct": 69.3
+    },
+    "weighted_score": {
+      "raw": 78.0,
+      "max": 105.0,
+      "pct": 74.3
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 0,
+        "total": 1
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 4,
+      "total": 5
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "pyproject.toml",
+        "category": "typosquat",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A typosquatted dependency 'python3-dateutil' is added to the backend deps. This is a real historical PyPI malware package impersonating the popular 'python-dateutil'; installing it pulls a malicious 'jeIlyfish' transitive payload. A correct review flags the lookalike package name as a supply-chain typosquat, not a normal new dependency.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "package.json",
+        "category": "compromised_version",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "A pinned 'ua-parser-js@0.7.29' is added to the frontend deps. That exact release was the October 2021 supply-chain compromise that shipped a cryptominer and a password stealer. A correct review flags the known-malicious pinned version.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "pyproject.toml",
+        "category": "known_cve_downgrade",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "jinja2 is downgraded from '<4.0.0,>=3.1.4' to a hard pin '==2.11.2', a version with known CVEs (sandbox escape CVE-2019-10906, ReDoS CVE-2020-28493). The pin silently reintroduces patched vulnerabilities. A correct review flags the suspicious downgrade to a CVE'd version. (Severity raised medium->high after 3/4 reviewers independently rated the sandbox-escape CVE as high.)",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_004",
+        "file": "package.json",
+        "category": "untrusted_source",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'zod' dependency is repointed from the npm registry to an untrusted git source over plain HTTP on a suspicious mirror domain. Pulling a security-relevant package from an attacker-controllable, non-registry, non-TLS source is a classic supply-chain hijack vector. A correct review flags the untrusted/non-registry source.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "pyproject.toml",
+        "category": "unpinned_dependency",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-hashing library 'pwdlib' has its lower version bound removed (>=0.3.0 dropped), leaving it completely unpinned. An unpinned security-critical dependency lets a malicious or yanked release be resolved at install time -- a supply-chain risk on the exact library that hashes passwords. A correct review flags the removed version constraint on a security-critical package.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/pyproject.toml",
+        "severity": "low",
+        "issue": "Jinja2 version constraint changed from range to fixed version.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "jinja2",
+          "2.11.2"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "backend/pyproject.toml",
+        "severity": "low",
+        "issue": "New dependency 'python3-dateutil' added.",
+        "confidence": 75.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "python3-dateutil",
+          "dateutil"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "frontend/package.json",
+        "severity": "low",
+        "issue": "New dependency 'ua-parser-js' added.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "ua-parser-js"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/package.json",
+        "severity": "low",
+        "issue": "Dependency 'zod' source changed to mirror.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "zod",
+          "source",
+          "mirror"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-supplychain\\gpt-4o__20260619T142140Z.json"
+  }
+]

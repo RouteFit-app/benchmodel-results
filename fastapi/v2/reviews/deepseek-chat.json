@@ -1,0 +1,118 @@
+{
+  "run_at": "2026-06-19T00:37:18.923348+00:00",
+  "benchmark_name": "FastAPI Full-Stack Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Python / FastAPI",
+  "reviewer_ai": "deepseek-chat",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4818,
+  "result": {
+    "review_id": "df8e18f6-8b55-4d23-bff5-8a8ee7252824",
+    "overall_score": 10.0,
+    "summary": "This diff fixes multiple security and correctness bugs across several backend files, including missing authorization checks, incorrect logic in conditionals, and a missing token expiration. All issues are resolved by the changes. No new issues were introduced.",
+    "findings": [
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "37",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Added owner_id filter to read_items; previously missing scoping fix.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "56",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed auth check from == to != for read_item; was incorrectly allowing others.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "91",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed email uniqueness check: was == , changed to !=; previously flagged user's own email as conflict.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "111",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Added missing password verification in update_password_me; was allowing wrong current password.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "137",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed delete_user_me condition: was not for non-superusers; now correctly blocks superusers.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "228",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Fixed delete user's items: changed != to == so items of deleted user are removed, not all others.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/core/security.py",
+        "line_range": "24",
+        "severity": "high",
+        "status": "resolved",
+        "issue": "Added exp claim to token payload; was missing expiration and tokens would never expire.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/items.py",
+        "line_range": "91",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Changed exclude_unset to True; prevents setting fields to None on partial update.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/login.py",
+        "line_range": "88",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Changed reset password error from 404 'User not found' to 400 'Invalid token' to avoid user enumeration.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 100.0
+      },
+      {
+        "file": "backend/app/api/routes/users.py",
+        "line_range": "83",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Changed type hint from UserUpdate to UserUpdateMe for update_user_me endpoint.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 90.0
+      }
+    ],
+    "files_reviewed": [
+      "backend/app/api/routes/items.py",
+      "backend/app/api/routes/login.py",
+      "backend/app/api/routes/users.py",
+      "backend/app/core/security.py"
+    ],
+    "files_skipped": []
+  }
+}

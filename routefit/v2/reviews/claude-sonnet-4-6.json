@@ -1,0 +1,109 @@
+{
+  "run_at": "2026-06-19T03:14:17.602292+00:00",
+  "benchmark_name": "RouteFit Bug Injection",
+  "repo": "https://github.com/RouteFit-app/routefit",
+  "base_branch": "main",
+  "buggy_branch": "benchmark/buggy-v2",
+  "known_bug_count": 10,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "claude-sonnet-4-6",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4616,
+  "result": {
+    "review_id": "d9adaae6-4562-41fe-962e-0449aab6eac8",
+    "overall_score": 2.5,
+    "summary": "This diff contains multiple high-severity regressions: historical date range queries are inverted, trail file deletion logic is backwards, distanceMeters silently changed units, and a resource leak was introduced by skipping speechRecognizer.destroy(). Additionally a context leak was introduced in OfferQueue and offer scoring semantics changed non-trivially. The only clearly correct change is the Earth-radius unit fix in AgentContextBuilder.",
+    "findings": [
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "498",
+        "severity": "high",
+        "status": "open",
+        "issue": "daysBack sign flipped: add(Calendar.DAY_OF_YEAR, daysBack) adds future days instead of subtracting past days, breaking all historical range queries.",
+        "suggested_fix": "Revert to add(Calendar.DAY_OF_YEAR, -daysBack) to correctly go back in time.",
+        "confidence": 95.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "568",
+        "severity": "high",
+        "status": "open",
+        "issue": "Speed outlier threshold raised from 40.0 to 400.0 m/s (or mph). At 400 m/s nearly all erroneous GPS jumps will pass the filter, corrupting trip distance calculations.",
+        "suggested_fix": "Revert to speed > 40.0 or use a value consistent with the unit (e.g. ~11 m/s for ~25 mph walking/cycling cap).",
+        "confidence": 90.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7135",
+        "severity": "high",
+        "status": "open",
+        "issue": "distanceMeters now divides by 1000, returning km not meters. Any caller expecting meters (e.g. the 500.0 m cut threshold above) will be off by 1000x.",
+        "suggested_fix": "Rename to distanceKm and update all callers, or revert the division and keep the function returning meters as its name implies.",
+        "confidence": 95.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "7149",
+        "severity": "high",
+        "status": "open",
+        "issue": "File deletion condition inverted: dayStr > cutoffDay deletes newer files and keeps old ones, the opposite of the intended cleanup behavior.",
+        "suggested_fix": "Revert to dayStr < cutoffDay to delete files older than the cutoff.",
+        "confidence": 97.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/Offerqueue.kt",
+        "line_range": "36",
+        "severity": "high",
+        "status": "open",
+        "issue": "appContext now stores the Activity/Service context instead of applicationContext. This leaks the caller context for the lifetime of the singleton OfferQueue object.",
+        "suggested_fix": "Revert to context.applicationContext to avoid context leaks.",
+        "confidence": 95.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+        "line_range": "172",
+        "severity": "medium",
+        "status": "resolved",
+        "issue": "Earth radius changed from 3958.8 (miles) to 6371.0 (km). Fix is correct if callers expect km; must be consistent with all call sites.",
+        "suggested_fix": "No further action needed; fix is correct.",
+        "confidence": 78.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+        "line_range": "624",
+        "severity": "medium",
+        "status": "open",
+        "issue": "speechRecognizer?.destroy() removed in onDestroy. The recognizer object is nulled but never destroyed, leaking the underlying resource and potentially causing ANRs.",
+        "suggested_fix": "Add speechRecognizer?.destroy() before setting it to null, matching the pattern used for offerSpeechRecognizer.",
+        "confidence": 92.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "9-10",
+        "severity": "medium",
+        "status": "open",
+        "issue": "roundTrip changed from miles*2 to miles (one-way only), and itemPenalty multiplier increased 10x (0.05 to 0.5). Scoring semantics silently changed; heavy multi-item orders may score negative.",
+        "suggested_fix": "Revert roundTrip = miles * 2 unless business logic intentionally changed. Validate new itemPenalty multiplier against real offer data before shipping.",
+        "confidence": 80.0
+      },
+      {
+        "file": "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+        "line_range": "6",
+        "severity": "low",
+        "status": "open",
+        "issue": "itemCount default value removed, making the parameter mandatory. Any existing call sites that omit itemCount will now fail to compile.",
+        "suggested_fix": "Restore the default: itemCount: Int? = null, or update all call sites to pass the argument explicitly.",
+        "confidence": 85.0
+      }
+    ],
+    "files_reviewed": [
+      "app/src/main/java/com/menelik/routefit/AgentContextBuilder.kt",
+      "app/src/main/java/com/menelik/routefit/MainActivity.kt",
+      "app/src/main/java/com/menelik/routefit/OfferScorer.kt",
+      "app/src/main/java/com/menelik/routefit/Offerqueue.kt"
+    ],
+    "files_skipped": []
+  }
+}

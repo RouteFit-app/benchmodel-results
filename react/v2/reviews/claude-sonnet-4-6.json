@@ -1,0 +1,104 @@
+{
+  "run_at": "2026-06-19T13:30:18.741956+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react-v2",
+  "known_bug_count": 8,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "claude-sonnet-4-6",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4536,
+  "result": {
+    "review_id": "fe3dc8d9-caaa-497f-8c97-f2f4aafed88c",
+    "overall_score": 1.2,
+    "summary": "This diff introduces eight distinct regressions across authentication, form validation, UI display, error handling, and state management. Critical issues include always-truthy login checks, inverted validation logic, success toasts shown on errors, and an inverted field-change guard. Memory leaks from missing event listener cleanup are also introduced in two hooks and the theme provider. None of the changes appear intentional improvements; the diff reads as a collection of introduced bugs.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "47",
+        "severity": "high",
+        "status": "open",
+        "issue": "Condition changed from OR to AND: '!data.password && data.password === data.confirm_password' always false when password exists, skipping mismatch validation.",
+        "suggested_fix": "Revert to '!data.password || data.password === data.confirm_password' to correctly allow empty password or require match.",
+        "confidence": 97.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "63",
+        "severity": "high",
+        "status": "open",
+        "issue": "onError handler now binds showSuccessToast instead of showErrorToast, so errors silently show a success toast misleading the user.",
+        "suggested_fix": "Revert to handleError.bind(showErrorToast) so that mutation errors are reported with the error toast as intended.",
+        "confidence": 98.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "68",
+        "severity": "high",
+        "status": "open",
+        "issue": "Condition inverted: full_name is now included in updateData only when it has NOT changed, and excluded when it has changed - opposite of the intended logic.",
+        "suggested_fix": "Revert to 'if (data.full_name !== currentUser?.full_name)' so changed values are sent and unchanged ones are omitted.",
+        "confidence": 98.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "15",
+        "severity": "high",
+        "status": "open",
+        "issue": "localStorage.getItem returns null when absent, never undefined, so '!== undefined' is always true - every visitor is treated as logged in.",
+        "suggested_fix": "Revert to 'localStorage.getItem(\"access_token\") !== null' to correctly detect absence of the token.",
+        "confidence": 99.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "102-105",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Removed Math.min clamp: 'to' value can now exceed data.length on the last page, showing an incorrect upper bound in pagination display.",
+        "suggested_fix": "Restore Math.min((pageIndex+1)*pageSize, data.length) to cap the displayed upper bound at the total record count.",
+        "confidence": 95.0
+      },
+      {
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "line_range": "70",
+        "severity": "medium",
+        "status": "open",
+        "issue": "queryKey narrowed to ['items', item.id] on error settlement; the list query ['items'] is never invalidated, so the list may stay stale after a failed edit.",
+        "suggested_fix": "Invalidate ['items'] (without the id) or both keys so the full item list is refreshed after any mutation settlement.",
+        "confidence": 80.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "86-88",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Cleanup function removed from useEffect: mediaQuery change listener is never removed, causing a memory leak and potential stale handler calls after unmount.",
+        "suggested_fix": "Restore 'return () => { mediaQuery.removeEventListener(\"change\", handleChange) }' inside the effect.",
+        "confidence": 96.0
+      },
+      {
+        "file": "frontend/src/hooks/useMobile.ts",
+        "line_range": "14",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Cleanup return removed from useEffect: mql change listener is never removed on unmount, causing a memory leak and potential state updates on unmounted component.",
+        "suggested_fix": "Restore 'return () => mql.removeEventListener(\"change\", onChange)' as the useEffect cleanup.",
+        "confidence": 96.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/Items/EditItem.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/hooks/useMobile.ts"
+    ],
+    "files_skipped": []
+  }
+}

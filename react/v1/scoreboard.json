@@ -1,0 +1,1519 @@
+[
+  {
+    "scored_at": "2026-06-19T05:20:17.236205+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": "7bf8a81660de9e13652c1f40fa46e242955700eb",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "claude-sonnet-4-6",
+      "writer_ai": null
+    },
+    "tech_stack": "React / Frontend",
+    "task": "Review pending changes",
+    "overall_score_reported": 1.2,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 138,
+      "max_possible_score": 150,
+      "score_pct": 92.0
+    },
+    "weighted_score": {
+      "raw": 155.0,
+      "max": 165.0,
+      "pct": 93.9
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "AddItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "After creating an item the mutation invalidates the wrong React Query cache key ([\"users\"] instead of [\"items\"]). The items list query is never refetched, so a newly created item does not appear until a manual reload, while an unrelated users query is needlessly refetched.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "useAuth.ts",
+        "category": "missing_await",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The await was dropped from the loginAccessToken call, so `response` is a Promise rather than the resolved token object. `response.access_token` is undefined, so the string 'undefined' (or undefined) is written to localStorage and the user is never actually authenticated even on correct credentials.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "useAuth.ts",
+        "category": "broken_conditional",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The `enabled` guard on the currentUser query was inverted (enabled: isLoggedIn() -> enabled: !isLoggedIn()). The current user is now fetched only while logged OUT and skipped while logged in, so `user` is always undefined for authenticated sessions, breaking every gate that depends on it.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "theme-provider.tsx",
+        "category": "stale_closure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "`theme` was removed from the useEffect dependency array, so the effect that applies the theme class to <html> and subscribes to the system color-scheme listener only runs on mount. Switching theme updates state but never re-applies the DOM class or rebinds the listener with the new value \u2014 a stale-closure dependency bug.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "ChangePassword.tsx",
+        "category": "validation_gap",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The zod `.refine()` that checks new_password === confirm_password was removed from the Change Password schema. The client no longer validates that the two fields match, so a user who mistypes the confirmation submits a password they did not intend, with no error shown.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The '+ 1' was dropped from the 'Showing X to Y' range start, which uses a 0-based pageIndex. The footer now reads 'Showing 0 to N' on the first page instead of 'Showing 1 to N' \u2014 an off-by-one in the displayed row range.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "UserInformation.tsx",
+        "category": "inverted_conditional",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The Save button's disabled condition was inverted (disabled={!form.formState.isDirty} -> disabled={form.formState.isDirty}). Save is now disabled exactly when there ARE unsaved changes and enabled when there are none, so the user can never submit an edited profile.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "EditUser.tsx",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'omit empty password' guard was inverted (if (!submitData.password) -> if (submitData.password)). Now the password is deleted from the payload precisely when the admin DID type a new one, and an empty-string password is sent when the field was left blank \u2014 so admins can never set a password and may push an empty password to the API.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_009",
+        "file": "items.tsx",
+        "category": "incomplete_fetch",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The items query limit was silently reduced from 100 to 10. Only the first 10 items are ever fetched, and because the table paginates client-side over whatever it received, users with more than 10 items silently lose access to the rest with no indication anything is missing.",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_010",
+        "file": "AddUser.tsx",
+        "category": "stale_state",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "form.reset() was removed from the Add User success handler. After creating a user the dialog closes but the form keeps the previous values, so reopening Add User shows the last submission's email/name/flags pre-filled instead of an empty form.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "Condition inverted: was 'if (!submitData.password) delete' now 'if (submitData.password) delete'. A non-empty password is now stripped and an empty one is sent, breaking password updates.",
+        "confidence": 97.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "submitData",
+          "password",
+          "delete",
+          "empty",
+          "inverted",
+          "condition"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "high",
+        "issue": "After adding an item, the code invalidates the 'users' query instead of 'items'. The items list will never refresh after creation.",
+        "confidence": 98.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "invalidateQueries",
+          "queryKey",
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "severity": "high",
+        "issue": "Password match validation (.refine) removed. Users can now submit mismatched new_password and confirm_password with no client-side error.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "refine",
+          "confirm_password",
+          "match",
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "high",
+        "issue": "Save button disabled logic inverted: 'disabled={form.formState.isDirty}' disables when dirty (changed) and enables when clean, preventing users from ever saving edits.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "isDirty",
+          "disabled",
+          "formState",
+          "save",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "'enabled: !isLoggedIn()' fetches current user only when NOT logged in. Logged-in users will never have their profile loaded, breaking the entire auth flow.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "enabled",
+          "isLoggedIn"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "'await' removed from LoginService.loginAccessToken call. 'response' is now a Promise; accessing response.access_token returns undefined, breaking login token storage.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "await",
+          "promise",
+          "access_token",
+          "response",
+          "loginAccessToken"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "severity": "medium",
+        "issue": "form.reset() removed on success. The form will retain stale values if the dialog is reopened, leading to confusing UX or accidental resubmission.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "form.reset",
+          "reset",
+          "stale",
+          "onSuccess"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "medium",
+        "issue": "Pagination 'Showing X to ...' start value lost +1. On page 0, offset 0*size=0 is shown instead of 1, and on later pages the start number is off by one.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "pageIndex",
+          "pageSize",
+          "off by one",
+          "+ 1",
+          "showing",
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 8,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "'theme' removed from useEffect dependency array. If theme changes externally the effect may not re-run, causing stale media-query listener behaviour.",
+        "confidence": 75.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "dependency",
+          "useEffect",
+          "theme",
+          "stale",
+          "array"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 9,
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "severity": "low",
+        "issue": "Items fetch limit reduced from 100 to 10. This is a significant behaviour change; ensure pagination handles partial loads or this is intentional.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "limit",
+          "100",
+          "10",
+          "fetch",
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react\\claude-sonnet-4-6__20260619T051941Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T05:20:17.247267+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": "7bf8a81660de9e13652c1f40fa46e242955700eb",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "deepseek-chat",
+      "writer_ai": null
+    },
+    "tech_stack": "React / Frontend",
+    "task": "Review pending changes",
+    "overall_score_reported": 4.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 138,
+      "max_possible_score": 150,
+      "score_pct": 92.0
+    },
+    "weighted_score": {
+      "raw": 153.0,
+      "max": 165.0,
+      "pct": 92.7
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "AddItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "After creating an item the mutation invalidates the wrong React Query cache key ([\"users\"] instead of [\"items\"]). The items list query is never refetched, so a newly created item does not appear until a manual reload, while an unrelated users query is needlessly refetched.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "useAuth.ts",
+        "category": "missing_await",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The await was dropped from the loginAccessToken call, so `response` is a Promise rather than the resolved token object. `response.access_token` is undefined, so the string 'undefined' (or undefined) is written to localStorage and the user is never actually authenticated even on correct credentials.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "useAuth.ts",
+        "category": "broken_conditional",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The `enabled` guard on the currentUser query was inverted (enabled: isLoggedIn() -> enabled: !isLoggedIn()). The current user is now fetched only while logged OUT and skipped while logged in, so `user` is always undefined for authenticated sessions, breaking every gate that depends on it.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "theme-provider.tsx",
+        "category": "stale_closure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "`theme` was removed from the useEffect dependency array, so the effect that applies the theme class to <html> and subscribes to the system color-scheme listener only runs on mount. Switching theme updates state but never re-applies the DOM class or rebinds the listener with the new value \u2014 a stale-closure dependency bug.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "ChangePassword.tsx",
+        "category": "validation_gap",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The zod `.refine()` that checks new_password === confirm_password was removed from the Change Password schema. The client no longer validates that the two fields match, so a user who mistypes the confirmation submits a password they did not intend, with no error shown.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The '+ 1' was dropped from the 'Showing X to Y' range start, which uses a 0-based pageIndex. The footer now reads 'Showing 0 to N' on the first page instead of 'Showing 1 to N' \u2014 an off-by-one in the displayed row range.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "UserInformation.tsx",
+        "category": "inverted_conditional",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The Save button's disabled condition was inverted (disabled={!form.formState.isDirty} -> disabled={form.formState.isDirty}). Save is now disabled exactly when there ARE unsaved changes and enabled when there are none, so the user can never submit an edited profile.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "EditUser.tsx",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'omit empty password' guard was inverted (if (!submitData.password) -> if (submitData.password)). Now the password is deleted from the payload precisely when the admin DID type a new one, and an empty-string password is sent when the field was left blank \u2014 so admins can never set a password and may push an empty password to the API.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_009",
+        "file": "items.tsx",
+        "category": "incomplete_fetch",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The items query limit was silently reduced from 100 to 10. Only the first 10 items are ever fetched, and because the table paginates client-side over whatever it received, users with more than 10 items silently lose access to the rest with no indication anything is missing.",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_010",
+        "file": "AddUser.tsx",
+        "category": "stale_state",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "form.reset() was removed from the Add User success handler. After creating a user the dialog closes but the form keeps the previous values, so reopening Add User shows the last submission's email/name/flags pre-filled instead of an empty form.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "Logic inverted: password was being deleted when set, now correctly deletes when password is empty.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "password",
+          "delete",
+          "empty",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "high",
+        "issue": "Invalidates 'users' query instead of 'items' after adding an item, causing stale item data.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "items",
+          "stale"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "severity": "high",
+        "issue": "Removed password confirmation validation, allowing mismatched passwords to be submitted.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "refine",
+          "passwords",
+          "match",
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "high",
+        "issue": "Inverted disabled logic: button now disabled when form IS dirty, preventing updates.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "isDirty",
+          "disabled",
+          "formState",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "Inverted enabled flag: query now runs when user is NOT logged in, causing unauthorized requests.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "enabled",
+          "isLoggedIn",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "medium",
+        "issue": "Removed +1 from page start index, now showing start as 0-based instead of 1-based, breaking UI display.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "showing"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "severity": "low",
+        "issue": "Removed form.reset() means form fields persist after successful user creation, potential data leakage or UX issue.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "form.reset",
+          "reset",
+          "onSuccess"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "Removed 'theme' from dependency array, effect may not re-run on theme change. Likely intentional if theme is stable.",
+        "confidence": 75.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "dependency",
+          "theme",
+          "array"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 8,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "low",
+        "issue": "Removed await before loginAccessToken call; may cause unhandled promise or timing issues.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "await",
+          "promise",
+          "response",
+          "loginAccessToken"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 9,
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "severity": "low",
+        "issue": "Reduced limit from 100 to 10, may impact pagination or user experience.",
+        "confidence": 60.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "limit",
+          "100",
+          "10",
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react\\deepseek-chat__20260619T051951Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T05:20:17.265141+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": "7bf8a81660de9e13652c1f40fa46e242955700eb",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gemini-2.5-pro",
+      "writer_ai": null
+    },
+    "tech_stack": "React / Frontend",
+    "task": "Review pending changes",
+    "overall_score_reported": 0.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 5,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 140,
+      "max_possible_score": 150,
+      "score_pct": 93.3
+    },
+    "weighted_score": {
+      "raw": 155.0,
+      "max": 165.0,
+      "pct": 93.9
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "AddItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "After creating an item the mutation invalidates the wrong React Query cache key ([\"users\"] instead of [\"items\"]). The items list query is never refetched, so a newly created item does not appear until a manual reload, while an unrelated users query is needlessly refetched.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "useAuth.ts",
+        "category": "missing_await",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The await was dropped from the loginAccessToken call, so `response` is a Promise rather than the resolved token object. `response.access_token` is undefined, so the string 'undefined' (or undefined) is written to localStorage and the user is never actually authenticated even on correct credentials.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "useAuth.ts",
+        "category": "broken_conditional",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The `enabled` guard on the currentUser query was inverted (enabled: isLoggedIn() -> enabled: !isLoggedIn()). The current user is now fetched only while logged OUT and skipped while logged in, so `user` is always undefined for authenticated sessions, breaking every gate that depends on it.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "theme-provider.tsx",
+        "category": "stale_closure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "`theme` was removed from the useEffect dependency array, so the effect that applies the theme class to <html> and subscribes to the system color-scheme listener only runs on mount. Switching theme updates state but never re-applies the DOM class or rebinds the listener with the new value \u2014 a stale-closure dependency bug.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "ChangePassword.tsx",
+        "category": "validation_gap",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The zod `.refine()` that checks new_password === confirm_password was removed from the Change Password schema. The client no longer validates that the two fields match, so a user who mistypes the confirmation submits a password they did not intend, with no error shown.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The '+ 1' was dropped from the 'Showing X to Y' range start, which uses a 0-based pageIndex. The footer now reads 'Showing 0 to N' on the first page instead of 'Showing 1 to N' \u2014 an off-by-one in the displayed row range.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "UserInformation.tsx",
+        "category": "inverted_conditional",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The Save button's disabled condition was inverted (disabled={!form.formState.isDirty} -> disabled={form.formState.isDirty}). Save is now disabled exactly when there ARE unsaved changes and enabled when there are none, so the user can never submit an edited profile.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_008",
+        "file": "EditUser.tsx",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'omit empty password' guard was inverted (if (!submitData.password) -> if (submitData.password)). Now the password is deleted from the payload precisely when the admin DID type a new one, and an empty-string password is sent when the field was left blank \u2014 so admins can never set a password and may push an empty password to the API.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_009",
+        "file": "items.tsx",
+        "category": "incomplete_fetch",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The items query limit was silently reduced from 100 to 10. Only the first 10 items are ever fetched, and because the table paginates client-side over whatever it received, users with more than 10 items silently lose access to the rest with no indication anything is missing.",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_010",
+        "file": "AddUser.tsx",
+        "category": "stale_state",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "form.reset() was removed from the Add User success handler. After creating a user the dialog closes but the form keeps the previous values, so reopening Add User shows the last submission's email/name/flags pre-filled instead of an empty form.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "The logic for updating a user's password has been inverted, preventing password changes from being submitted.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "submitData",
+          "password",
+          "inverted",
+          "condition"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "severity": "high",
+        "issue": "The validation check that confirms the new password and confirmation password match has been removed.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "refine",
+          "passwords",
+          "match",
+          "validation",
+          "zod"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "The query to fetch the current user's data is now enabled only when the user is *not* logged in, which is incorrect.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "enabled",
+          "isLoggedIn"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "The 'await' keyword was removed from an asynchronous API call during login, which will break the login flow.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "await",
+          "async",
+          "loginAccessToken"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "severity": "medium",
+        "issue": "Form is not reset after successful user creation, which will show stale data the next time the form is opened.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "form.reset",
+          "reset",
+          "stale",
+          "onSuccess"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "medium",
+        "issue": "After adding an item, the wrong query key ('users') is invalidated. This prevents the items list from automatically refreshing.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "invalidateQueries",
+          "queryKey",
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "medium",
+        "issue": "The 'Save' button's disabled logic is inverted. It is now disabled when the form has changes and enabled when it doesn't.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "isDirty",
+          "disabled",
+          "formState",
+          "save",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "low",
+        "issue": "The calculation for the starting item number in the pagination display is incorrect, resulting in an off-by-one error (e.g., 'Showing 0 to 10').",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "pageSize",
+          "off-by-one",
+          "+ 1",
+          "showing",
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 8,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "The 'theme' prop was removed from a useEffect dependency array, which could lead to a stale closure and incorrect behavior when the theme is changed.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "dependency",
+          "useEffect",
+          "theme",
+          "stale",
+          "array"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 9,
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "severity": "low",
+        "issue": "The item fetch limit was reduced from 100 to 10. This may be an unintended change that causes incomplete data display.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "limit",
+          "100",
+          "10",
+          "fetch",
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react\\gemini-2.5-pro__20260619T051915Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T05:20:17.280740+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 1,
+    "bug_index_commit_hash": "7bf8a81660de9e13652c1f40fa46e242955700eb",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gpt-4o",
+      "writer_ai": null
+    },
+    "tech_stack": "React / Frontend",
+    "task": "Review pending changes",
+    "overall_score_reported": 6.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 3,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 136,
+      "max_possible_score": 150,
+      "score_pct": 90.7
+    },
+    "weighted_score": {
+      "raw": 147.0,
+      "max": 165.0,
+      "pct": 89.1
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 4,
+        "total": 4
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "AddItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "After creating an item the mutation invalidates the wrong React Query cache key ([\"users\"] instead of [\"items\"]). The items list query is never refetched, so a newly created item does not appear until a manual reload, while an unrelated users query is needlessly refetched.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "useAuth.ts",
+        "category": "missing_await",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The await was dropped from the loginAccessToken call, so `response` is a Promise rather than the resolved token object. `response.access_token` is undefined, so the string 'undefined' (or undefined) is written to localStorage and the user is never actually authenticated even on correct credentials.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_003",
+        "file": "useAuth.ts",
+        "category": "broken_conditional",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The `enabled` guard on the currentUser query was inverted (enabled: isLoggedIn() -> enabled: !isLoggedIn()). The current user is now fetched only while logged OUT and skipped while logged in, so `user` is always undefined for authenticated sessions, breaking every gate that depends on it.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_004",
+        "file": "theme-provider.tsx",
+        "category": "stale_closure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "`theme` was removed from the useEffect dependency array, so the effect that applies the theme class to <html> and subscribes to the system color-scheme listener only runs on mount. Switching theme updates state but never re-applies the DOM class or rebinds the listener with the new value \u2014 a stale-closure dependency bug.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "ChangePassword.tsx",
+        "category": "validation_gap",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The zod `.refine()` that checks new_password === confirm_password was removed from the Change Password schema. The client no longer validates that the two fields match, so a user who mistypes the confirmation submits a password they did not intend, with no error shown.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The '+ 1' was dropped from the 'Showing X to Y' range start, which uses a 0-based pageIndex. The footer now reads 'Showing 0 to N' on the first page instead of 'Showing 1 to N' \u2014 an off-by-one in the displayed row range.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "UserInformation.tsx",
+        "category": "inverted_conditional",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The Save button's disabled condition was inverted (disabled={!form.formState.isDirty} -> disabled={form.formState.isDirty}). Save is now disabled exactly when there ARE unsaved changes and enabled when there are none, so the user can never submit an edited profile.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_008",
+        "file": "EditUser.tsx",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'omit empty password' guard was inverted (if (!submitData.password) -> if (submitData.password)). Now the password is deleted from the payload precisely when the admin DID type a new one, and an empty-string password is sent when the field was left blank \u2014 so admins can never set a password and may push an empty password to the API.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "items.tsx",
+        "category": "incomplete_fetch",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The items query limit was silently reduced from 100 to 10. Only the first 10 items are ever fetched, and because the table paginates client-side over whatever it received, users with more than 10 items silently lose access to the rest with no indication anything is missing.",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_010",
+        "file": "AddUser.tsx",
+        "category": "stale_state",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "form.reset() was removed from the Add User success handler. After creating a user the dialog closes but the form keeps the previous values, so reopening Add User shows the last submission's email/name/flags pre-filled instead of an empty form.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/UserSettings/ChangePassword.tsx",
+        "severity": "high",
+        "issue": "Password confirmation check removed.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "medium",
+        "issue": "Condition to delete password corrected.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "password",
+          "delete",
+          "condition"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "medium",
+        "issue": "Invalidate query now using 'users' instead of 'items'.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "medium",
+        "issue": "Button now disabled only if form is dirty.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "disabled"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "medium",
+        "issue": "useQuery enabled condition changed unexpectedly.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "enabled",
+          "useQuery"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/Admin/AddUser.tsx",
+        "severity": "low",
+        "issue": "Removed form.reset() call after successful user creation.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "form.reset",
+          "reset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "low",
+        "issue": "Pagination calculation adjusted.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "pagination"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "Dependency array of useEffect updated.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "dependency",
+          "useEffect",
+          "array"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 8,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "low",
+        "issue": "Await removed from LoginService call.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "await",
+          "async"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 9,
+        "file": "frontend/src/routes/_layout/items.tsx",
+        "severity": "low",
+        "issue": "Changed item query limit from 100 to 10.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "limit",
+          "100",
+          "10"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react\\gpt-4o__20260619T051831Z.json"
+  }
+]

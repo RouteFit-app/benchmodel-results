@@ -1,0 +1,1299 @@
+[
+  {
+    "scored_at": "2026-06-19T13:30:29.843890+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "d378c0ca3877411862535ee75c0dcd5fe1746f02",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "claude-sonnet-4-6",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 1.2,
+    "totals": {
+      "bugs_total": 8,
+      "bugs_detected": 8,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 8,
+      "severity_correct_count": 5,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 114,
+      "max_possible_score": 120,
+      "score_pct": 95.0
+    },
+    "weighted_score": {
+      "raw": 123.5,
+      "max": 127.5,
+      "pct": 96.9
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 3
+      },
+      "medium": {
+        "detected": 3,
+        "total": 3
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "useAuth.ts",
+        "category": "broken_auth",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "isLoggedIn compares localStorage.getItem(...) against undefined instead of null. getItem returns null (never undefined) when the key is absent, so `null !== undefined` is always true and isLoggedIn() returns true even when no token is stored. Every client-side auth gate that calls it now treats anonymous visitors as logged in. The line looks like a normal presence check; the bug is the null-vs-undefined distinction.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "EditItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "After editing an item the invalidation key was narrowed from [\"items\"] to [\"items\", item.id]. React Query invalidates queries whose key STARTS WITH the given key, and the list query is keyed exactly [\"items\"] -- which is not a descendant of [\"items\", item.id] -- so the list is never invalidated and the edited row keeps showing stale data. The more-specific key looks more correct, which is why it's easy to miss.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "UserInformation.tsx",
+        "category": "inverted_logic",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The 'only send changed fields' guard for full_name was inverted (!== became ===). full_name is now added to the update payload only when it did NOT change, so an actual edit to the name is silently dropped and never persisted while unchanged values are sent redundantly. The line reads like a normal equality check.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "useMobile.ts",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The effect's cleanup (return () => mql.removeEventListener('change', onChange)) was removed. The matchMedia listener still works, so nothing looks broken in normal use, but every mount that isn't cleaned up leaks a listener bound to a stale onChange closure -- accumulating across remounts and firing setState on unmounted components.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "theme-provider.tsx",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The cleanup that unsubscribes the prefers-color-scheme media-query listener was deleted from the theme effect. Because the effect re-runs on every theme change (theme is in its deps), a new 'change' listener is added each time with no corresponding removal, leaking handlers and eventually running stale handleChange closures.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The Math.min(..., data.length) clamp on the 'to' value of the 'Showing X to Y' range was removed, leaving just (pageIndex + 1) * pageSize. On the last (partial) page this overshoots data.length -- e.g. 'Showing 21 to 30 of 23' -- because nothing caps it at the real row count.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "EditUser.tsx",
+        "category": "validation_logic",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-match refine changed from `!data.password || data.password === data.confirm_password` to `&&`. The intent is 'valid if no password was set, OR if it matches the confirmation'. With && it is valid only when there is no password AND it matches -- so the moment an admin types a new password the schema can never pass, blocking all password changes, while the original 'skip check when empty' path is broken too.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "AddItem.tsx",
+        "category": "error_handling",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The error handler is bound to showSuccessToast instead of showErrorToast. handleError calls `this(message)`, so a failed create now pops a green 'Success!' toast containing the error text, and the user believes the item was created when it wasn't. Both toasts are destructured from the same hook, so the swap reads as plausible.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "Condition changed from OR to AND: '!data.password && data.password === data.confirm_password' always false when password exists, skipping mismatch validation.",
+        "confidence": 97.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "password",
+          "confirm_password",
+          "&&",
+          "||",
+          "match",
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "high",
+        "issue": "onError handler now binds showSuccessToast instead of showErrorToast, so errors silently show a success toast misleading the user.",
+        "confidence": 98.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "onError",
+          "handleError",
+          "bind",
+          "showErrorToast",
+          "showSuccessToast",
+          "success",
+          "error toast"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "high",
+        "issue": "Condition inverted: full_name is now included in updateData only when it has NOT changed, and excluded when it has changed - opposite of the intended logic.",
+        "confidence": 98.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "full_name",
+          "changed",
+          "!==",
+          "updateData",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "localStorage.getItem returns null when absent, never undefined, so '!== undefined' is always true - every visitor is treated as logged in.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "null",
+          "undefined",
+          "getItem",
+          "access_token",
+          "localStorage",
+          "always true"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "medium",
+        "issue": "Removed Math.min clamp: 'to' value can now exceed data.length on the last page, showing an incorrect upper bound in pagination display.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "Math.min",
+          "data.length",
+          "clamp",
+          "last page",
+          "pageSize"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "severity": "medium",
+        "issue": "queryKey narrowed to ['items', item.id] on error settlement; the list query ['items'] is never invalidated, so the list may stay stale after a failed edit.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "queryKey",
+          "item.id",
+          "stale",
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "medium",
+        "issue": "Cleanup function removed from useEffect: mediaQuery change listener is never removed, causing a memory leak and potential stale handler calls after unmount.",
+        "confidence": 96.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "mediaQuery",
+          "listener"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/hooks/useMobile.ts",
+        "severity": "medium",
+        "issue": "Cleanup return removed from useEffect: mql change listener is never removed on unmount, causing a memory leak and potential state updates on unmounted component.",
+        "confidence": 96.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "listener",
+          "return",
+          "unmount"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      }
+    ],
+    "source_file": "results-react-v2\\claude-sonnet-4-6__20260619T133018Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T13:30:29.856368+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "d378c0ca3877411862535ee75c0dcd5fe1746f02",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "deepseek-chat",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 4.0,
+    "totals": {
+      "bugs_total": 8,
+      "bugs_detected": 8,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 8,
+      "severity_correct_count": 4,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 112,
+      "max_possible_score": 120,
+      "score_pct": 93.3
+    },
+    "weighted_score": {
+      "raw": 117.5,
+      "max": 127.5,
+      "pct": 92.2
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 3
+      },
+      "medium": {
+        "detected": 3,
+        "total": 3
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "useAuth.ts",
+        "category": "broken_auth",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "isLoggedIn compares localStorage.getItem(...) against undefined instead of null. getItem returns null (never undefined) when the key is absent, so `null !== undefined` is always true and isLoggedIn() returns true even when no token is stored. Every client-side auth gate that calls it now treats anonymous visitors as logged in. The line looks like a normal presence check; the bug is the null-vs-undefined distinction.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "EditItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "After editing an item the invalidation key was narrowed from [\"items\"] to [\"items\", item.id]. React Query invalidates queries whose key STARTS WITH the given key, and the list query is keyed exactly [\"items\"] -- which is not a descendant of [\"items\", item.id] -- so the list is never invalidated and the edited row keeps showing stale data. The more-specific key looks more correct, which is why it's easy to miss.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "UserInformation.tsx",
+        "category": "inverted_logic",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The 'only send changed fields' guard for full_name was inverted (!== became ===). full_name is now added to the update payload only when it did NOT change, so an actual edit to the name is silently dropped and never persisted while unchanged values are sent redundantly. The line reads like a normal equality check.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "useMobile.ts",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The effect's cleanup (return () => mql.removeEventListener('change', onChange)) was removed. The matchMedia listener still works, so nothing looks broken in normal use, but every mount that isn't cleaned up leaks a listener bound to a stale onChange closure -- accumulating across remounts and firing setState on unmounted components.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "theme-provider.tsx",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The cleanup that unsubscribes the prefers-color-scheme media-query listener was deleted from the theme effect. Because the effect re-runs on every theme change (theme is in its deps), a new 'change' listener is added each time with no corresponding removal, leaking handlers and eventually running stale handleChange closures.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The Math.min(..., data.length) clamp on the 'to' value of the 'Showing X to Y' range was removed, leaving just (pageIndex + 1) * pageSize. On the last (partial) page this overshoots data.length -- e.g. 'Showing 21 to 30 of 23' -- because nothing caps it at the real row count.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "EditUser.tsx",
+        "category": "validation_logic",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-match refine changed from `!data.password || data.password === data.confirm_password` to `&&`. The intent is 'valid if no password was set, OR if it matches the confirmation'. With && it is valid only when there is no password AND it matches -- so the moment an admin types a new password the schema can never pass, blocking all password changes, while the original 'skip check when empty' path is broken too.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "AddItem.tsx",
+        "category": "error_handling",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The error handler is bound to showSuccessToast instead of showErrorToast. handleError calls `this(message)`, so a failed create now pops a green 'Success!' toast containing the error text, and the user believes the item was created when it wasn't. Both toasts are destructured from the same hook, so the swap reads as plausible.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "Changed logical operator from || to && breaks password match check: now requires both no password AND matching passwords, so any password fails.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "password",
+          "confirm_password",
+          "&&",
+          "||",
+          "match"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "high",
+        "issue": "Changed !== to === causes updateData.full_name to always be set to current full_name, even when unchanged, breaking the intent.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "full_name",
+          "changed",
+          "===",
+          "!==",
+          "updateData"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "medium",
+        "issue": "Error handler was bound to showErrorToast but diff switches to showSuccessToast, which is a bug introduced and then fixed in this diff.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "showErrorToast",
+          "showSuccessToast",
+          "success"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "severity": "medium",
+        "issue": "Changed query key from ['items'] to ['items', item.id] may invalidate only a single item's cache instead of the entire list, causing stale data.",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "invalidateQueries",
+          "queryKey",
+          "item.id",
+          "stale",
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "low",
+        "issue": "Removed Math.min clipping causes pagination display to show entries beyond available data length.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "Math.min",
+          "data.length"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "Removed cleanup function from useEffect causes memory leak by not removing media query listener.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "listener"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "low",
+        "issue": "Changed null check to undefined; both are falsy, so behavior is identical - no functional change.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "null",
+          "undefined"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/hooks/useMobile.ts",
+        "severity": "low",
+        "issue": "Removed cleanup function from useEffect causes memory leak by not removing media query listener.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "listener",
+          "return"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react-v2\\deepseek-chat__20260619T133029Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T13:30:29.866471+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "d378c0ca3877411862535ee75c0dcd5fe1746f02",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gemini-2.5-pro",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 0.0,
+    "totals": {
+      "bugs_total": 8,
+      "bugs_detected": 8,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 8,
+      "severity_correct_count": 5,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 114,
+      "max_possible_score": 120,
+      "score_pct": 95.0
+    },
+    "weighted_score": {
+      "raw": 121.5,
+      "max": 127.5,
+      "pct": 95.3
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 3
+      },
+      "medium": {
+        "detected": 3,
+        "total": 3
+      },
+      "low": {
+        "detected": 2,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "useAuth.ts",
+        "category": "broken_auth",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "isLoggedIn compares localStorage.getItem(...) against undefined instead of null. getItem returns null (never undefined) when the key is absent, so `null !== undefined` is always true and isLoggedIn() returns true even when no token is stored. Every client-side auth gate that calls it now treats anonymous visitors as logged in. The line looks like a normal presence check; the bug is the null-vs-undefined distinction.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "EditItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "After editing an item the invalidation key was narrowed from [\"items\"] to [\"items\", item.id]. React Query invalidates queries whose key STARTS WITH the given key, and the list query is keyed exactly [\"items\"] -- which is not a descendant of [\"items\", item.id] -- so the list is never invalidated and the edited row keeps showing stale data. The more-specific key looks more correct, which is why it's easy to miss.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "UserInformation.tsx",
+        "category": "inverted_logic",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The 'only send changed fields' guard for full_name was inverted (!== became ===). full_name is now added to the update payload only when it did NOT change, so an actual edit to the name is silently dropped and never persisted while unchanged values are sent redundantly. The line reads like a normal equality check.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_004",
+        "file": "useMobile.ts",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The effect's cleanup (return () => mql.removeEventListener('change', onChange)) was removed. The matchMedia listener still works, so nothing looks broken in normal use, but every mount that isn't cleaned up leaks a listener bound to a stale onChange closure -- accumulating across remounts and firing setState on unmounted components.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_005",
+        "file": "theme-provider.tsx",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The cleanup that unsubscribes the prefers-color-scheme media-query listener was deleted from the theme effect. Because the effect re-runs on every theme change (theme is in its deps), a new 'change' listener is added each time with no corresponding removal, leaking handlers and eventually running stale handleChange closures.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The Math.min(..., data.length) clamp on the 'to' value of the 'Showing X to Y' range was removed, leaving just (pageIndex + 1) * pageSize. On the last (partial) page this overshoots data.length -- e.g. 'Showing 21 to 30 of 23' -- because nothing caps it at the real row count.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "EditUser.tsx",
+        "category": "validation_logic",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-match refine changed from `!data.password || data.password === data.confirm_password` to `&&`. The intent is 'valid if no password was set, OR if it matches the confirmation'. With && it is valid only when there is no password AND it matches -- so the moment an admin types a new password the schema can never pass, blocking all password changes, while the original 'skip check when empty' path is broken too.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "AddItem.tsx",
+        "category": "error_handling",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The error handler is bound to showSuccessToast instead of showErrorToast. handleError calls `this(message)`, so a failed create now pops a green 'Success!' toast containing the error text, and the user believes the item was created when it wasn't. Both toasts are destructured from the same hook, so the swap reads as plausible.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "The password confirmation validation logic is incorrect. The change from `||` to `&&` will cause validation to fail any time a password is provided.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "password",
+          "confirm_password",
+          "&&",
+          "||",
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "high",
+        "issue": "The logic to check for changed fields is inverted. The code now adds a field to the update payload only if it has *not* changed, preventing user information updates.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "changed",
+          "===",
+          "!==",
+          "inverted",
+          "comparison"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "high",
+        "issue": "`localStorage.getItem` returns `null` (not `undefined`) for a missing key. The new check will cause `isLoggedIn` to always return true, breaking authentication.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "isLoggedIn",
+          "null",
+          "undefined",
+          "getItem",
+          "access_token",
+          "localStorage"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "medium",
+        "issue": "The `onError` callback for adding an item is incorrectly configured to show a success toast instead of an error toast, which will mislead the user.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "onError",
+          "bind",
+          "showErrorToast",
+          "showSuccessToast",
+          "success",
+          "error toast"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "severity": "medium",
+        "issue": "Query invalidation may be too specific. Invalidating `[\"items\", item.id]` updates the specific item cache but leaves the main item list stale if it's displayed.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "invalidateQueries",
+          "queryKey",
+          "item.id",
+          "too specific",
+          "stale",
+          "items"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "medium",
+        "issue": "The cleanup function for the `useEffect` hook was removed, which will cause a memory leak because the `mediaQuery` event listener is never removed.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "mediaQuery",
+          "listener"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/hooks/useMobile.ts",
+        "severity": "medium",
+        "issue": "The cleanup function for the `useEffect` hook was removed, which will cause a memory leak because the `mql` event listener is never removed.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "cleanup",
+          "removeEventListener",
+          "leak",
+          "useEffect",
+          "listener",
+          "return"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "low",
+        "issue": "The pagination 'to' count can now exceed the total number of items on the last page since the `Math.min` check was removed.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "Math.min",
+          "last page"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      }
+    ],
+    "source_file": "results-react-v2\\gemini-2.5-pro__20260619T132956Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T13:30:29.878072+00:00",
+    "bug_index_benchmark_name": "React Frontend Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "d378c0ca3877411862535ee75c0dcd5fe1746f02",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gpt-4o",
+      "writer_ai": null
+    },
+    "tech_stack": "Kotlin / Android",
+    "task": "Review pending changes",
+    "overall_score_reported": 6.5,
+    "totals": {
+      "bugs_total": 8,
+      "bugs_detected": 6,
+      "detection_rate_pct": 75.0,
+      "file_correct_count": 6,
+      "severity_correct_count": 1,
+      "false_positive_count": 0,
+      "duplicate_count": 2,
+      "raw_score": 80,
+      "max_possible_score": 120,
+      "score_pct": 66.7
+    },
+    "weighted_score": {
+      "raw": 92.0,
+      "max": 127.5,
+      "pct": 72.2
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 3
+      },
+      "medium": {
+        "detected": 2,
+        "total": 3
+      },
+      "low": {
+        "detected": 1,
+        "total": 2
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 2,
+      "total": 2
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "useAuth.ts",
+        "category": "broken_auth",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "isLoggedIn compares localStorage.getItem(...) against undefined instead of null. getItem returns null (never undefined) when the key is absent, so `null !== undefined` is always true and isLoggedIn() returns true even when no token is stored. Every client-side auth gate that calls it now treats anonymous visitors as logged in. The line looks like a normal presence check; the bug is the null-vs-undefined distinction.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_002",
+        "file": "EditItem.tsx",
+        "category": "stale_cache",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "After editing an item the invalidation key was narrowed from [\"items\"] to [\"items\", item.id]. React Query invalidates queries whose key STARTS WITH the given key, and the list query is keyed exactly [\"items\"] -- which is not a descendant of [\"items\", item.id] -- so the list is never invalidated and the edited row keeps showing stale data. The more-specific key looks more correct, which is why it's easy to miss.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_003",
+        "file": "UserInformation.tsx",
+        "category": "inverted_logic",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The 'only send changed fields' guard for full_name was inverted (!== became ===). full_name is now added to the update payload only when it did NOT change, so an actual edit to the name is silently dropped and never persisted while unchanged values are sent redundantly. The line reads like a normal equality check.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_004",
+        "file": "useMobile.ts",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "The effect's cleanup (return () => mql.removeEventListener('change', onChange)) was removed. The matchMedia listener still works, so nothing looks broken in normal use, but every mount that isn't cleaned up leaks a listener bound to a stale onChange closure -- accumulating across remounts and firing setState on unmounted components.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_005",
+        "file": "theme-provider.tsx",
+        "category": "resource_leak",
+        "difficulty": "hard",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The cleanup that unsubscribes the prefers-color-scheme media-query listener was deleted from the theme effect. Because the effect re-runs on every theme change (theme is in its deps), a new 'change' listener is added each time with no corresponding removal, leaking handlers and eventually running stale handleChange closures.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "low",
+        "points": 15
+      },
+      {
+        "id": "BUG_006",
+        "file": "DataTable.tsx",
+        "category": "off_by_one",
+        "difficulty": "medium",
+        "severity": "low",
+        "security_relevant": false,
+        "description": "The Math.min(..., data.length) clamp on the 'to' value of the 'Showing X to Y' range was removed, leaving just (pageIndex + 1) * pageSize. On the last (partial) page this overshoots data.length -- e.g. 'Showing 21 to 30 of 23' -- because nothing caps it at the real row count.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_007",
+        "file": "EditUser.tsx",
+        "category": "validation_logic",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "The password-match refine changed from `!data.password || data.password === data.confirm_password` to `&&`. The intent is 'valid if no password was set, OR if it matches the confirmation'. With && it is valid only when there is no password AND it matches -- so the moment an admin types a new password the schema can never pass, blocking all password changes, while the original 'skip check when empty' path is broken too.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "AddItem.tsx",
+        "category": "error_handling",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": false,
+        "description": "The error handler is bound to showSuccessToast instead of showErrorToast. handleError calls `this(message)`, so a failed create now pops a green 'Success!' toast containing the error text, and the user believes the item was created when it wasn't. Both toasts are destructured from the same hook, so the swap reads as plausible.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "severity": "high",
+        "issue": "Logical issue in refine; password check incorrect.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "refine",
+          "password",
+          "&&",
+          "||"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 1,
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "severity": "medium",
+        "issue": "Error handler uses success toast instead of error.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "showErrorToast",
+          "showSuccessToast",
+          "success"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "severity": "medium",
+        "issue": "Logic error in condition checking full_name.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "full_name",
+          "===",
+          "!=="
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "severity": "low",
+        "issue": "Changed pagination logic may lead to incorrect page end.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "changed"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": true,
+        "points": 0
+      },
+      {
+        "index": 4,
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "severity": "low",
+        "issue": "Query invalidation correctly updated to be more specific.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "validation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": true,
+        "points": 0
+      },
+      {
+        "index": 5,
+        "file": "frontend/src/components/theme-provider.tsx",
+        "severity": "low",
+        "issue": "Removed media query listener cleanup.",
+        "confidence": 75.0,
+        "matched_bug_id": "BUG_005",
+        "matched_keywords": [
+          "cleanup",
+          "listener"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "frontend/src/hooks/useAuth.ts",
+        "severity": "low",
+        "issue": "Check for null is replaced with undefined; not interchangeable.",
+        "confidence": 80.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "null",
+          "undefined",
+          "localStorage"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "frontend/src/hooks/useMobile.ts",
+        "severity": "low",
+        "issue": "Removed event listener cleanup in useEffect.",
+        "confidence": 70.0,
+        "matched_bug_id": "BUG_004",
+        "matched_keywords": [
+          "cleanup",
+          "useEffect",
+          "listener"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-react-v2\\gpt-4o__20260619T132922Z.json"
+  }
+]

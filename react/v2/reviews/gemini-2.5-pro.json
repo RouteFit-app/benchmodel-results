@@ -1,0 +1,104 @@
+{
+  "run_at": "2026-06-19T13:29:56.265962+00:00",
+  "benchmark_name": "React Frontend Bug Injection",
+  "repo": "https://github.com/RouteFit-app/benchmodel-fastapi-template",
+  "base_branch": "master",
+  "buggy_branch": "benchmark/buggy-react-v2",
+  "known_bug_count": 8,
+  "tech_stack": "Kotlin / Android",
+  "reviewer_ai": "gemini-2.5-pro",
+  "writer_ai": null,
+  "task": "Review pending changes",
+  "writer_summary": "Misc updates across the trip tracking and offer scoring code.",
+  "diff_chars": 4536,
+  "result": {
+    "review_id": "6cc24d6e-7399-435d-9d49-db425e5a7fc9",
+    "overall_score": 0.0,
+    "summary": "This diff introduces numerous regressions and bugs across the frontend. Key issues include broken authentication logic, inverted logic for user updates and password validation, memory leaks from missing useEffect cleanup, and incorrect user feedback. Nearly every change is flawed and should be reverted or corrected.",
+    "findings": [
+      {
+        "file": "frontend/src/components/Admin/EditUser.tsx",
+        "line_range": "45-48",
+        "severity": "high",
+        "status": "open",
+        "issue": "The password confirmation validation logic is incorrect. The change from `||` to `&&` will cause validation to fail any time a password is provided.",
+        "suggested_fix": "Revert the logical operator to `||`. The condition should be `!data.password || data.password === data.confirm_password`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/UserSettings/UserInformation.tsx",
+        "line_range": "68",
+        "severity": "high",
+        "status": "open",
+        "issue": "The logic to check for changed fields is inverted. The code now adds a field to the update payload only if it has *not* changed, preventing user information updates.",
+        "suggested_fix": "Revert the comparison operator from `===` back to `!==` to correctly detect changes.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useAuth.ts",
+        "line_range": "15",
+        "severity": "high",
+        "status": "open",
+        "issue": "`localStorage.getItem` returns `null` (not `undefined`) for a missing key. The new check will cause `isLoggedIn` to always return true, breaking authentication.",
+        "suggested_fix": "Change the comparison back to check against `null`, or more robustly, use `!!localStorage.getItem(\"access_token\")`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Items/AddItem.tsx",
+        "line_range": "64",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The `onError` callback for adding an item is incorrectly configured to show a success toast instead of an error toast, which will mislead the user.",
+        "suggested_fix": "Bind the `onError` handler to `showErrorToast` instead of `showSuccessToast`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Items/EditItem.tsx",
+        "line_range": "70",
+        "severity": "medium",
+        "status": "open",
+        "issue": "Query invalidation may be too specific. Invalidating `[\"items\", item.id]` updates the specific item cache but leaves the main item list stale if it's displayed.",
+        "suggested_fix": "Invalidate the general items list as well or instead, e.g., `queryClient.invalidateQueries({ queryKey: [\"items\"] })` to ensure all views are updated.",
+        "confidence": 90.0
+      },
+      {
+        "file": "frontend/src/components/theme-provider.tsx",
+        "line_range": "86-88",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The cleanup function for the `useEffect` hook was removed, which will cause a memory leak because the `mediaQuery` event listener is never removed.",
+        "suggested_fix": "Restore the returned cleanup function to call `mediaQuery.removeEventListener`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/hooks/useMobile.ts",
+        "line_range": "15",
+        "severity": "medium",
+        "status": "open",
+        "issue": "The cleanup function for the `useEffect` hook was removed, which will cause a memory leak because the `mql` event listener is never removed.",
+        "suggested_fix": "Restore the returned cleanup function to call `mql.removeEventListener`.",
+        "confidence": 100.0
+      },
+      {
+        "file": "frontend/src/components/Common/DataTable.tsx",
+        "line_range": "102-108",
+        "severity": "low",
+        "status": "open",
+        "issue": "The pagination 'to' count can now exceed the total number of items on the last page since the `Math.min` check was removed.",
+        "suggested_fix": "Reinstate the `Math.min` logic to ensure the displayed count does not exceed the total number of entries.",
+        "confidence": 100.0
+      }
+    ],
+    "files_reviewed": [
+      "frontend/src/components/Admin/EditUser.tsx",
+      "frontend/src/components/Common/DataTable.tsx",
+      "frontend/src/components/Items/AddItem.tsx",
+      "frontend/src/components/Items/EditItem.tsx",
+      "frontend/src/components/UserSettings/UserInformation.tsx",
+      "frontend/src/components/theme-provider.tsx",
+      "frontend/src/hooks/useAuth.ts",
+      "frontend/src/hooks/useMobile.ts"
+    ],
+    "files_skipped": []
+  }
+}

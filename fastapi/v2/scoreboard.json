@@ -1,0 +1,1450 @@
+[
+  {
+    "scored_at": "2026-06-19T00:37:41.067517+00:00",
+    "bug_index_benchmark_name": "FastAPI Full-Stack Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "claude-sonnet-4-6",
+      "writer_ai": null
+    },
+    "tech_stack": "Python / FastAPI",
+    "task": "Review pending changes",
+    "overall_score_reported": 9.2,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 7,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 144,
+      "max_possible_score": 150,
+      "score_pct": 96.0
+    },
+    "weighted_score": {
+      "raw": 188.0,
+      "max": 195.0,
+      "pct": 96.4
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 6,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 8,
+      "total": 8
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "items.py",
+        "category": "broken_access_control",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Ownership check in read_item inverted (!= becomes ==): a non-superuser can now read any other user's item by id, and is blocked from reading their own. Classic IDOR / broken object-level authorization.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "items.py",
+        "category": "data_exposure",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The owner-scoping filter (.where(Item.owner_id == current_user.id)) was removed from the non-superuser list query, so a normal user's GET /items now returns every user's items. Multi-tenant data leak.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "security.py",
+        "category": "insecure_token",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'exp' (expiration) claim was dropped from the JWT payload, so access tokens never expire. A leaked token is valid forever.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_006",
+        "file": "users.py",
+        "category": "broken_authentication",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The current-password verification was removed from update_password_me, so an authenticated session can set a new password without proving knowledge of the current one (enables full account takeover after a session hijack/CSRF).",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "users.py",
+        "category": "access_control_logic",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "Self-delete guard inverted (if current_user.is_superuser -> if not current_user.is_superuser). Normal users can no longer delete their own account, while superusers can now delete themselves -- the opposite of the intended rule.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "users.py",
+        "category": "data_integrity",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Email-uniqueness check inverted (!= becomes ==): updating to your OWN email is now rejected as a conflict, while taking ANOTHER existing user's email is allowed, creating duplicate emails.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "login.py",
+        "category": "information_disclosure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "reset_password now returns 404 'User not found' instead of the deliberately-generic 'Invalid token' when the email has no account, re-introducing a user-enumeration oracle on the password reset endpoint.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "items.py",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "PATCH update_item switched from exclude_unset=True to exclude_unset=False, so fields the client did NOT send are included in the update dict as their defaults and overwrite existing values -- a partial update now silently wipes untouched fields.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_011",
+        "file": "users.py",
+        "category": "mass_assignment",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "update_user_me binds the body to UserUpdate instead of UserUpdateMe. UserUpdate (via UserBase) includes is_superuser/is_active, and current_user.sqlmodel_update applies every supplied field -- so any user can PATCH /users/me with {\"is_superuser\": true} and self-escalate to admin (mass-assignment / over-posting).",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_012",
+        "file": "users.py",
+        "category": "orm_data_bleed",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "delete_user's cascade filter is inverted: delete(Item).where(col(Item.owner_id) == user_id) became != user_id. Deleting one user now wipes EVERY OTHER user's items and orphans the deleted user's -- catastrophic cross-tenant data loss.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "read_items had no owner filter, exposing all users items to any authenticated user. Fix adds .where(Item.owner_id == current_user.id).",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "where",
+          "owner_id",
+          "filter"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "read_item authorization was inverted: denied access to the real owner and allowed access to everyone else. Fix corrects != operator.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "authorization"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Email conflict check was inverted: blocked the current user from keeping their own email and allowed others to steal it. Fix corrects != operator.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "email",
+          "conflict"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "update_password_me did not reject an incorrect current password; anyone could change a password without knowing it. Fix adds verified check.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "current password",
+          "verified"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "delete_user_me guard was inverted: allowed superusers to delete themselves and blocked normal users. Fix corrects the condition.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "delete",
+          "superuser",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "delete_user deleted items belonging to everyone EXCEPT the target user (!= user_id). Fix corrects to == user_id.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_012",
+        "matched_keywords": [
+          "delete",
+          "!=",
+          "every"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "backend/app/core/security.py",
+        "severity": "high",
+        "issue": "create_access_token omitted 'exp' claim, producing tokens that never expire. Fix adds 'exp': expire to the payload.",
+        "confidence": 99.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "exp",
+          "expire",
+          "token"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "medium",
+        "issue": "update_item used exclude_unset=False, overwriting all fields with defaults on partial updates. Fix changes to exclude_unset=True.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "exclude_unset",
+          "partial update",
+          "unset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 8,
+        "file": "backend/app/api/routes/login.py",
+        "severity": "medium",
+        "issue": "reset_password returned 404 with 'User not found', leaking user existence. Fix returns 400 with 'Invalid token'.",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "Invalid token",
+          "User not found",
+          "404",
+          "reset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 9,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "medium",
+        "issue": "update_user_me accepted UserUpdate instead of UserUpdateMe, potentially allowing privilege escalation via is_superuser field. Fix uses UserUpdateMe.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "UserUpdate",
+          "UserUpdateMe",
+          "is_superuser",
+          "privilege",
+          "escalation"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-fastapi-v2\\claude-sonnet-4-6__20260619T003709Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T00:37:41.067517+00:00",
+    "bug_index_benchmark_name": "FastAPI Full-Stack Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "deepseek-chat",
+      "writer_ai": null
+    },
+    "tech_stack": "Python / FastAPI",
+    "task": "Review pending changes",
+    "overall_score_reported": 10.0,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 10,
+      "detection_rate_pct": 100.0,
+      "file_correct_count": 10,
+      "severity_correct_count": 7,
+      "false_positive_count": 0,
+      "duplicate_count": 0,
+      "raw_score": 144,
+      "max_possible_score": 150,
+      "score_pct": 96.0
+    },
+    "weighted_score": {
+      "raw": 188.0,
+      "max": 195.0,
+      "pct": 96.4
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 6,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 8,
+      "total": 8
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "items.py",
+        "category": "broken_access_control",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Ownership check in read_item inverted (!= becomes ==): a non-superuser can now read any other user's item by id, and is blocked from reading their own. Classic IDOR / broken object-level authorization.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "items.py",
+        "category": "data_exposure",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The owner-scoping filter (.where(Item.owner_id == current_user.id)) was removed from the non-superuser list query, so a normal user's GET /items now returns every user's items. Multi-tenant data leak.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "security.py",
+        "category": "insecure_token",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'exp' (expiration) claim was dropped from the JWT payload, so access tokens never expire. A leaked token is valid forever.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_006",
+        "file": "users.py",
+        "category": "broken_authentication",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The current-password verification was removed from update_password_me, so an authenticated session can set a new password without proving knowledge of the current one (enables full account takeover after a session hijack/CSRF).",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "users.py",
+        "category": "access_control_logic",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "Self-delete guard inverted (if current_user.is_superuser -> if not current_user.is_superuser). Normal users can no longer delete their own account, while superusers can now delete themselves -- the opposite of the intended rule.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "users.py",
+        "category": "data_integrity",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Email-uniqueness check inverted (!= becomes ==): updating to your OWN email is now rejected as a conflict, while taking ANOTHER existing user's email is allowed, creating duplicate emails.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "login.py",
+        "category": "information_disclosure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "reset_password now returns 404 'User not found' instead of the deliberately-generic 'Invalid token' when the email has no account, re-introducing a user-enumeration oracle on the password reset endpoint.",
+        "detected": true,
+        "matched_finding_index": 8,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "items.py",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "PATCH update_item switched from exclude_unset=True to exclude_unset=False, so fields the client did NOT send are included in the update dict as their defaults and overwrite existing values -- a partial update now silently wipes untouched fields.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_011",
+        "file": "users.py",
+        "category": "mass_assignment",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "update_user_me binds the body to UserUpdate instead of UserUpdateMe. UserUpdate (via UserBase) includes is_superuser/is_active, and current_user.sqlmodel_update applies every supplied field -- so any user can PATCH /users/me with {\"is_superuser\": true} and self-escalate to admin (mass-assignment / over-posting).",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_012",
+        "file": "users.py",
+        "category": "orm_data_bleed",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "delete_user's cascade filter is inverted: delete(Item).where(col(Item.owner_id) == user_id) became != user_id. Deleting one user now wipes EVERY OTHER user's items and orphans the deleted user's -- catastrophic cross-tenant data loss.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "Added owner_id filter to read_items; previously missing scoping fix.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "owner_id",
+          "filter",
+          "scoping"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "Fixed auth check from == to != for read_item; was incorrectly allowing others.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "=="
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Fixed email uniqueness check: was == , changed to !=; previously flagged user's own email as conflict.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "email",
+          "uniqueness",
+          "conflict",
+          "=="
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Added missing password verification in update_password_me; was allowing wrong current password.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "current password",
+          "verification"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Fixed delete_user_me condition: was not for non-superusers; now correctly blocks superusers.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "delete",
+          "superuser"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 5,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Fixed delete user's items: changed != to == so items of deleted user are removed, not all others.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_012",
+        "matched_keywords": [
+          "delete",
+          "!="
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "backend/app/core/security.py",
+        "severity": "high",
+        "issue": "Added exp claim to token payload; was missing expiration and tokens would never expire.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "exp",
+          "expire",
+          "expiration",
+          "token"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "medium",
+        "issue": "Changed exclude_unset to True; prevents setting fields to None on partial update.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "exclude_unset",
+          "partial update",
+          "unset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 8,
+        "file": "backend/app/api/routes/login.py",
+        "severity": "medium",
+        "issue": "Changed reset password error from 404 'User not found' to 400 'Invalid token' to avoid user enumeration.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "enumeration",
+          "Invalid token",
+          "User not found",
+          "404",
+          "reset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 9,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "medium",
+        "issue": "Changed type hint from UserUpdate to UserUpdateMe for update_user_me endpoint.",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "UserUpdate",
+          "UserUpdateMe"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-fastapi-v2\\deepseek-chat__20260619T003718Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T00:37:41.094874+00:00",
+    "bug_index_benchmark_name": "FastAPI Full-Stack Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gemini-2.5-pro",
+      "writer_ai": null
+    },
+    "tech_stack": "Python / FastAPI",
+    "task": "Review pending changes",
+    "overall_score_reported": 10.0,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 9,
+      "detection_rate_pct": 90.0,
+      "file_correct_count": 9,
+      "severity_correct_count": 8,
+      "false_positive_count": 0,
+      "duplicate_count": 1,
+      "raw_score": 133,
+      "max_possible_score": 150,
+      "score_pct": 88.7
+    },
+    "weighted_score": {
+      "raw": 177.0,
+      "max": 195.0,
+      "pct": 90.8
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 6,
+        "total": 6
+      },
+      "medium": {
+        "detected": 3,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 0,
+    "security_relevant": {
+      "detected": 8,
+      "total": 8
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "items.py",
+        "category": "broken_access_control",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Ownership check in read_item inverted (!= becomes ==): a non-superuser can now read any other user's item by id, and is blocked from reading their own. Classic IDOR / broken object-level authorization.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "items.py",
+        "category": "data_exposure",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The owner-scoping filter (.where(Item.owner_id == current_user.id)) was removed from the non-superuser list query, so a normal user's GET /items now returns every user's items. Multi-tenant data leak.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_003",
+        "file": "security.py",
+        "category": "insecure_token",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'exp' (expiration) claim was dropped from the JWT payload, so access tokens never expire. A leaked token is valid forever.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_006",
+        "file": "users.py",
+        "category": "broken_authentication",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The current-password verification was removed from update_password_me, so an authenticated session can set a new password without proving knowledge of the current one (enables full account takeover after a session hijack/CSRF).",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_007",
+        "file": "users.py",
+        "category": "access_control_logic",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "Self-delete guard inverted (if current_user.is_superuser -> if not current_user.is_superuser). Normal users can no longer delete their own account, while superusers can now delete themselves -- the opposite of the intended rule.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_008",
+        "file": "users.py",
+        "category": "data_integrity",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Email-uniqueness check inverted (!= becomes ==): updating to your OWN email is now rejected as a conflict, while taking ANOTHER existing user's email is allowed, creating duplicate emails.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_009",
+        "file": "login.py",
+        "category": "information_disclosure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "reset_password now returns 404 'User not found' instead of the deliberately-generic 'Invalid token' when the email has no account, re-introducing a user-enumeration oracle on the password reset endpoint.",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "items.py",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "PATCH update_item switched from exclude_unset=True to exclude_unset=False, so fields the client did NOT send are included in the update dict as their defaults and overwrite existing values -- a partial update now silently wipes untouched fields.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_011",
+        "file": "users.py",
+        "category": "mass_assignment",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "update_user_me binds the body to UserUpdate instead of UserUpdateMe. UserUpdate (via UserBase) includes is_superuser/is_active, and current_user.sqlmodel_update applies every supplied field -- so any user can PATCH /users/me with {\"is_superuser\": true} and self-escalate to admin (mass-assignment / over-posting).",
+        "detected": true,
+        "matched_finding_index": 9,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "low",
+        "points": 13
+      },
+      {
+        "id": "BUG_012",
+        "file": "users.py",
+        "category": "orm_data_bleed",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "delete_user's cascade filter is inverted: delete(Item).where(col(Item.owner_id) == user_id) became != user_id. Deleting one user now wipes EVERY OTHER user's items and orphans the deleted user's -- catastrophic cross-tenant data loss.",
+        "detected": true,
+        "matched_finding_index": 3,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "The item listing endpoint did not filter by owner, leaking all items to any authenticated user.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_002",
+        "matched_keywords": [
+          "filter",
+          "all items",
+          "leak"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "The authorization check for reading a single item was inverted, denying access to the owner and allowing access to others.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "authorization"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 2,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "The password update endpoint did not verify the user's current password, allowing a password change with just a valid session token.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "current password"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 3,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "When deleting a user, the database query was inverted, causing it to delete all items *except* those belonging to the user being deleted.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_012",
+        "matched_keywords": [
+          "delete",
+          "all items",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 4,
+        "file": "backend/app/core/security.py",
+        "severity": "high",
+        "issue": "Access tokens were created without an expiration ('exp') claim, meaning they would never expire.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "exp",
+          "expire",
+          "expiration",
+          "token"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "medium",
+        "issue": "Using `exclude_unset=False` for updates would overwrite existing field values with `None` if they weren't provided in the PATCH request.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "exclude_unset",
+          "PATCH",
+          "overwrite",
+          "unset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "backend/app/api/routes/login.py",
+        "severity": "medium",
+        "issue": "A user enumeration vulnerability existed in the password reset flow. The API returned a different error for non-existent users.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "enumeration",
+          "reset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 7,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "medium",
+        "issue": "The logic to check for an existing email during user update was inverted, preventing a user from keeping their own email.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 8,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "medium",
+        "issue": "The logic to prevent superusers from deleting themselves was inverted, preventing non-superusers from doing so instead.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "superuser",
+          "inverted"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": true,
+        "points": 0
+      },
+      {
+        "index": 9,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "low",
+        "issue": "The user update endpoint used a less specific Pydantic model (`UserUpdate`) instead of the more appropriate `UserUpdateMe`.",
+        "confidence": 100.0,
+        "matched_bug_id": "BUG_011",
+        "matched_keywords": [
+          "UserUpdate",
+          "UserUpdateMe"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-fastapi-v2\\gemini-2.5-pro__20260619T003650Z.json"
+  },
+  {
+    "scored_at": "2026-06-19T00:37:41.100814+00:00",
+    "bug_index_benchmark_name": "FastAPI Full-Stack Bug Injection",
+    "bug_index_version": 2,
+    "bug_index_commit_hash": "5f4e1bc84a49bd53038ebcf9ebcaf6db51debf68",
+    "scoring_weights_used": {
+      "detect_points": 10,
+      "correct_file_bonus": 3,
+      "correct_severity_bonus": 2,
+      "false_positive_penalty": -2,
+      "severity_weight": {
+        "high": 1.5,
+        "medium": 1.0,
+        "low": 0.5
+      }
+    },
+    "model_combo": {
+      "reviewer_ai": "gpt-4o",
+      "writer_ai": null
+    },
+    "tech_stack": "Python / FastAPI",
+    "task": "Review pending changes",
+    "overall_score_reported": 8.5,
+    "totals": {
+      "bugs_total": 10,
+      "bugs_detected": 7,
+      "detection_rate_pct": 70.0,
+      "file_correct_count": 7,
+      "severity_correct_count": 3,
+      "false_positive_count": 0,
+      "duplicate_count": 1,
+      "raw_score": 97,
+      "max_possible_score": 150,
+      "score_pct": 64.7
+    },
+    "weighted_score": {
+      "raw": 117.5,
+      "max": 195.0,
+      "pct": 60.3
+    },
+    "severity_breakdown": {
+      "high": {
+        "detected": 3,
+        "total": 6
+      },
+      "medium": {
+        "detected": 4,
+        "total": 4
+      },
+      "low": {
+        "detected": 0,
+        "total": 0
+      }
+    },
+    "high_severity_missed_count": 3,
+    "security_relevant": {
+      "detected": 5,
+      "total": 8
+    },
+    "bugs": [
+      {
+        "id": "BUG_001",
+        "file": "items.py",
+        "category": "broken_access_control",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "Ownership check in read_item inverted (!= becomes ==): a non-superuser can now read any other user's item by id, and is blocked from reading their own. Classic IDOR / broken object-level authorization.",
+        "detected": true,
+        "matched_finding_index": 0,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "high",
+        "points": 15
+      },
+      {
+        "id": "BUG_002",
+        "file": "items.py",
+        "category": "data_exposure",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The owner-scoping filter (.where(Item.owner_id == current_user.id)) was removed from the non-superuser list query, so a normal user's GET /items now returns every user's items. Multi-tenant data leak.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_003",
+        "file": "security.py",
+        "category": "insecure_token",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The 'exp' (expiration) claim was dropped from the JWT payload, so access tokens never expire. A leaked token is valid forever.",
+        "detected": true,
+        "matched_finding_index": 7,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_006",
+        "file": "users.py",
+        "category": "broken_authentication",
+        "difficulty": "medium",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "The current-password verification was removed from update_password_me, so an authenticated session can set a new password without proving knowledge of the current one (enables full account takeover after a session hijack/CSRF).",
+        "detected": true,
+        "matched_finding_index": 6,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "medium",
+        "points": 13
+      },
+      {
+        "id": "BUG_007",
+        "file": "users.py",
+        "category": "access_control_logic",
+        "difficulty": "medium",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "Self-delete guard inverted (if current_user.is_superuser -> if not current_user.is_superuser). Normal users can no longer delete their own account, while superusers can now delete themselves -- the opposite of the intended rule.",
+        "detected": true,
+        "matched_finding_index": 2,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_008",
+        "file": "users.py",
+        "category": "data_integrity",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "Email-uniqueness check inverted (!= becomes ==): updating to your OWN email is now rejected as a conflict, while taking ANOTHER existing user's email is allowed, creating duplicate emails.",
+        "detected": true,
+        "matched_finding_index": 1,
+        "file_correct": true,
+        "severity_correct": false,
+        "reviewer_severity": "high",
+        "points": 13
+      },
+      {
+        "id": "BUG_009",
+        "file": "login.py",
+        "category": "information_disclosure",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": true,
+        "description": "reset_password now returns 404 'User not found' instead of the deliberately-generic 'Invalid token' when the email has no account, re-introducing a user-enumeration oracle on the password reset endpoint.",
+        "detected": true,
+        "matched_finding_index": 5,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_010",
+        "file": "items.py",
+        "category": "data_loss",
+        "difficulty": "hard",
+        "severity": "medium",
+        "security_relevant": false,
+        "description": "PATCH update_item switched from exclude_unset=True to exclude_unset=False, so fields the client did NOT send are included in the update dict as their defaults and overwrite existing values -- a partial update now silently wipes untouched fields.",
+        "detected": true,
+        "matched_finding_index": 4,
+        "file_correct": true,
+        "severity_correct": true,
+        "reviewer_severity": "medium",
+        "points": 15
+      },
+      {
+        "id": "BUG_011",
+        "file": "users.py",
+        "category": "mass_assignment",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "update_user_me binds the body to UserUpdate instead of UserUpdateMe. UserUpdate (via UserBase) includes is_superuser/is_active, and current_user.sqlmodel_update applies every supplied field -- so any user can PATCH /users/me with {\"is_superuser\": true} and self-escalate to admin (mass-assignment / over-posting).",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      },
+      {
+        "id": "BUG_012",
+        "file": "users.py",
+        "category": "orm_data_bleed",
+        "difficulty": "hard",
+        "severity": "high",
+        "security_relevant": true,
+        "description": "delete_user's cascade filter is inverted: delete(Item).where(col(Item.owner_id) == user_id) became != user_id. Deleting one user now wipes EVERY OTHER user's items and orphans the deleted user's -- catastrophic cross-tenant data loss.",
+        "detected": false,
+        "matched_finding_index": null,
+        "file_correct": false,
+        "severity_correct": false,
+        "reviewer_severity": null,
+        "points": 0
+      }
+    ],
+    "findings": [
+      {
+        "index": 0,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "high",
+        "issue": "Incorrect permission check fixed to prevent unauthorized access",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_001",
+        "matched_keywords": [
+          "permission"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 1,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Fixed check for existing user email to avoid conflicts",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_008",
+        "matched_keywords": [
+          "email",
+          "conflict"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 2,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Corrected superuser self-delete logic",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "delete",
+          "self-delete",
+          "superuser"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 3,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "high",
+        "issue": "Fixed delete logic for user-related items",
+        "confidence": 95.0,
+        "matched_bug_id": "BUG_007",
+        "matched_keywords": [
+          "delete"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": true,
+        "points": 0
+      },
+      {
+        "index": 4,
+        "file": "backend/app/api/routes/items.py",
+        "severity": "medium",
+        "issue": "Fixed item update dictionary to exclude unset fields",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_010",
+        "matched_keywords": [
+          "unset"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 5,
+        "file": "backend/app/api/routes/login.py",
+        "severity": "medium",
+        "issue": "Changed HTTPException to prevent revealing user existence",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_009",
+        "matched_keywords": [
+          "reveal"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 15
+      },
+      {
+        "index": 6,
+        "file": "backend/app/api/routes/users.py",
+        "severity": "medium",
+        "issue": "Added check for incorrect current password during update",
+        "confidence": 90.0,
+        "matched_bug_id": "BUG_006",
+        "matched_keywords": [
+          "current password"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      },
+      {
+        "index": 7,
+        "file": "backend/app/core/security.py",
+        "severity": "medium",
+        "issue": "Added expiration to JWT payload for token validity",
+        "confidence": 85.0,
+        "matched_bug_id": "BUG_003",
+        "matched_keywords": [
+          "exp",
+          "expiration",
+          "token",
+          "JWT"
+        ],
+        "is_false_positive": false,
+        "is_duplicate": false,
+        "points": 13
+      }
+    ],
+    "source_file": "results-fastapi-v2\\gpt-4o__20260619T003626Z.json"
+  }
+]
